@@ -39,6 +39,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\Libraries\SQLite\System.Data.SQLite.DLL</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -47,6 +50,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QuerySpecs.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DynamicLinq\DynamicLinq.csproj">
+      <Project>{F84F5C92-F2A5-4935-B907-7586FE2BDFFF}</Project>
+      <Name>DynamicLinq</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
