@@ -58,7 +58,7 @@ namespace DynamicLinq
 			{
 				AwesomeStringBuilder sb = new AwesomeStringBuilder();
 
-				sb = Enumerable.Aggregate(properties, sb, (current, property) => current + ("[" + property.Item1 + "][" + property.Item2.FullName + "]"));
+				sb = Enumerable.Aggregate(Enumerable.OrderBy(properties, p => p.Item1), sb, (current, property) => current + ("[" + property.Item1 + "][" + property.Item2.FullName + "]"));
 
 				string id = sb.ToString();
 
