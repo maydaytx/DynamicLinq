@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Machine.Specifications;
 
@@ -63,7 +64,7 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'John', 'Bobson')
 		Because of = () =>
 		{
 			result = (from record in (object)db.Table
-					  where record.FirstName == "Bob"
+					  where record.FirstName != "John"
 					  select record.Id).Cast<long>().ToList();
 		};
 
@@ -109,5 +110,117 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 
 		It should_retrieve_2_records = () =>
 			result.Count.ShouldEqual(2);
+	}
+
+	public class When_predicating_on_a_clause_with_external_functions
+	{
+		private static dynamic db;
+		private static Exception exception;
+
+		private static bool IsSomething(dynamic obj)
+		{
+			return true;
+		}
+
+		Establish context = () =>
+		{
+			var getConnection = SQLite.CreateInMemoryDatabase
+				(
+@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name]);
+
+INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Sal');
+INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Bob');
+INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Joe');
+INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
+				);
+
+			db = new DB(getConnection);
+		};
+
+		private Because of = () =>
+		{
+			exception = Catch.Exception(() => (from record in (object) db.Table
+			                                   where IsSomething(record.Name)
+			                                   select record).ToList());
+		};
+
+		It should_not_allow = () =>
+			exception.ShouldNotBeNull();
+	}
+
+	public class When_predicating_on_an_invalid_clause
+	{
+		private static dynamic db;
+		private static Exception exception;
+
+		private static bool IsSomething(dynamic obj)
+		{
+			return true;
+		}
+
+		Establish context = () =>
+		{
+			var getConnection = SQLite.CreateInMemoryDatabase
+				(
+@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name]);
+
+INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Sal');
+INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Bob');
+INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Joe');
+INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
+				);
+
+			db = new DB(getConnection);
+		};
+
+		private Because of = () =>
+		{
+			exception = Catch.Exception(() => (from record in (object)db.Table
+											   where record
+											   select record).ToList());
+		};
+
+		It should_not_allow = () =>
+			exception.ShouldNotBeNull();
+	}
+
+	public class When_predicating_on_multiple_clauses
+	{
+		private static dynamic db;
+		private static IList<long> result;
+
+		private static bool IsSomething(dynamic obj)
+		{
+			return true;
+		}
+
+		Establish context = () =>
+		{
+			var getConnection = SQLite.CreateInMemoryDatabase
+				(
+@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name]);
+
+INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Sal');
+INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Bob');
+INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Joe');
+INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
+				);
+
+			db = new DB(getConnection);
+		};
+
+		private Because of = () =>
+		{
+			result = (from record in (object) db.Table
+			          where record.Name.Like("S%")
+			          where record.Id > 1
+			          select record.Id).Cast<long>().ToList();
+		};
+
+		It should_retrieve_the_records = () =>
+			result[0].ShouldEqual(4L);
+
+		It should_retrieve_2_records = () =>
+			result.Count.ShouldEqual(1);
 	}
 }

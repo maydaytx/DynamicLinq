@@ -26,12 +26,15 @@ namespace DynamicLinq
 			this.selectClauseItems = selectClauseItems;
 		}
 
-		internal void SetWhereClause(ClauseItem whereClause)
+		internal void AddWhereClause(ClauseItem whereClause)
 		{
-			this.whereClause = whereClause;
+			if (ReferenceEquals(this.whereClause, null))
+				this.whereClause = whereClause;
+			else
+				this.whereClause = new BinaryOperation(BinaryOperator.And, this.whereClause, whereClause);
 		}
 
-		private bool CreateDuck
+		private bool NeedsDuck
 		{
 			get { return selectClauseItems == null || selectClauseItems.Count != 1 || selectClauseItems[0].Item1 != null; }
 		}
@@ -92,10 +95,16 @@ namespace DynamicLinq
 				}
 			}
 
-			if (CreateDuck)
-				results = Enumerable.Select(rows, row => DuckRepository.GenerateDuck(Enumerable.Select(row, column => new Tuple<string, Type, object>(column.Item1, dataTypes[column.Item1], column.Item2))));
+			if (NeedsDuck)
+			{
+				Type duckType = DuckRepository.GenerateDuckType(Enumerable.Select(dataTypes, t => new Tuple<string, Type>(t.Key, t.Value)));
+
+				results = Enumerable.Select(rows, row => DuckRepository.CreateDuck(duckType, dataTypes, row));
+			}
 			else
+			{
 				results = Enumerable.Select(rows, row => row.Single().Item2);
+			}
 		}
 
 		private string BuildSQL(IList<Tuple<string, object>> parameters)
@@ -107,7 +116,7 @@ namespace DynamicLinq
 			{
 				sql += "*";
 			}
-			else if (!CreateDuck)
+			else if (!NeedsDuck)
 			{
 				sql += selectClauseItems[0].Item2.BuildClause(parameters);
 			}

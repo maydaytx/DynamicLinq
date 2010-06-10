@@ -25,32 +25,20 @@ namespace DynamicLinq
 			generatedDuckTypes = new Dictionary<string, Type>();
 		}
 
-		internal static object GenerateDuck(Type type)
+		internal static object CreateDuck(Type duckType, IDictionary<string, Type> properties, IEnumerable<Tuple<string, object>> row)
 		{
-			return GenerateDuck(Enumerable.Select(type.GetProperties(), p => new Tuple<string, Type>(p.Name, p.PropertyType)));
-		}
+			Duck duck = (Duck) Activator.CreateInstance(duckType);
 
-		internal static object GenerateDuck(object obj)
-		{
-			Type type = obj.GetType();
-
-			return GenerateDuck(Enumerable.Select(type.GetProperties(), p => new Tuple<string, Type, object>(p.Name, p.PropertyType, p.GetValue(obj, null))));
-		}
-
-		internal static object GenerateDuck(IEnumerable<Tuple<string, Type, object>> properties)
-		{
-			Duck duck = (Duck) GenerateDuck(Enumerable.Select(properties, p => new Tuple<string, Type>(p.Item1, p.Item2)));
-
-			foreach (Tuple<string, Type, object> property in properties)
+			foreach (Tuple<string, object> property in row)
 			{
-				duck.EnsureProperty(property.Item1, property.Item2);
-				duck.SetPropertyValue(property.Item1, property.Item3);
+				duck.EnsureProperty(property.Item1, properties[property.Item1]);
+				duck.SetPropertyValue(property.Item1, property.Item2);
 			}
 
 			return duck;
 		}
 
-		internal static object GenerateDuck(IEnumerable<Tuple<string, Type>> properties)
+		internal static Type GenerateDuckType(IEnumerable<Tuple<string, Type>> properties)
 		{
 			Type type;
 
@@ -83,7 +71,7 @@ namespace DynamicLinq
 				}
 			}
 
-			return Activator.CreateInstance(type);
+			return type;
 		}
 
 		private static void DefineSerializationMethod(TypeBuilder tb)

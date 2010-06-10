@@ -39,10 +39,10 @@ namespace DynamicLinq
 
 			object obj = predicate(clauseGetter);
 
-			//if (obj is ClauseItem)
-			    query.SetWhereClause((ClauseItem) obj);
-			//else
-			//    throw new ArgumentException("Invalid predicate");
+			if (obj is ClauseItem)
+			    query.AddWhereClause((ClauseItem) obj);
+			else
+			    throw new ArgumentException("Invalid predicate");
 
 			return query;
 		}

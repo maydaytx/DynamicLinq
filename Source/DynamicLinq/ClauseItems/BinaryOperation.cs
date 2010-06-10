@@ -18,9 +18,7 @@ namespace DynamicLinq.ClauseItems
 
 		internal override AwesomeStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
 		{
-			AwesomeStringBuilder clause = new AwesomeStringBuilder("(");
-			
-			clause += leftItem.BuildClause(parameters) + " ";
+			AwesomeStringBuilder clause = "(" + leftItem.BuildClause(parameters) + " ";
 
 			switch (@operator)
 			{

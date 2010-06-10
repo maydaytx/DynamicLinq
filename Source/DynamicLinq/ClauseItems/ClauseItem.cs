@@ -9,11 +9,6 @@ namespace DynamicLinq.ClauseItems
 
 		internal abstract AwesomeStringBuilder BuildClause(IList<Tuple<string, object>> parameters);
 
-		//public override string ToString()
-		//{
-		//    return BuildClause(new List<Tuple<string, object>>()).ToString();
-		//}
-
 		#region implicit conversions
 
 		public static implicit operator ClauseItem(bool @bool)
@@ -89,6 +84,51 @@ namespace DynamicLinq.ClauseItems
 		public static implicit operator ClauseItem(DateTime dateTime)
 		{
 			return new Constant(dateTime);
+		}
+
+		#endregion
+
+		#region unary operations
+
+		//+, -, !, ~, ++, --, true, false
+		public static ClauseItem operator +(ClauseItem x)
+		{
+			return new UnaryOperation(UnaryOperator.Positive, x);
+		}
+
+		public static ClauseItem operator -(ClauseItem x)
+		{
+			return new UnaryOperation(UnaryOperator.Negative, x);
+		}
+
+		public static ClauseItem operator !(ClauseItem x)
+		{
+			return new UnaryOperation(UnaryOperator.Not, x);
+		}
+
+		public static ClauseItem operator ~(ClauseItem x)
+		{
+			return new UnaryOperation(UnaryOperator.Complement, x);
+		}
+
+		public static ClauseItem operator ++(ClauseItem x)
+		{
+			throw new NotImplementedException();
+		}
+
+		public static ClauseItem operator --(ClauseItem x)
+		{
+			throw new NotImplementedException();
+		}
+
+		public static bool operator true(ClauseItem x)
+		{
+			return true;
+		}
+
+		public static bool operator false(ClauseItem x)
+		{
+			return false;
 		}
 
 		#endregion
@@ -184,5 +224,24 @@ namespace DynamicLinq.ClauseItems
 
 		#endregion
 
+		public ClauseItem In(params ClauseItem[] list)
+		{
+			return new InOperation(this, list);
+		}
+
+		public new ClauseItem Equals(object obj)
+		{
+			if (obj is ClauseGetter)
+				throw new ArgumentException("Cant evaluate clause");
+
+			ClauseItem clauseItem = obj as ClauseItem ?? new Constant(obj);
+
+			return this == clauseItem;
+		}
+
+		public override int GetHashCode()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
