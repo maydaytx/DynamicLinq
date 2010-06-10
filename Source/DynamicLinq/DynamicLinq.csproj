@@ -40,6 +40,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AwesomeStringBuilder.cs" />
+    <Compile Include="ClauseGetter.cs" />
+    <Compile Include="ClauseItems\BinaryOperation.cs" />
+    <Compile Include="ClauseItems\BinaryOperator.cs" />
+    <Compile Include="ClauseItems\ClauseItem.cs" />
+    <Compile Include="ClauseItems\Column.cs" />
+    <Compile Include="ClauseItems\Constant.cs" />
     <Compile Include="DB.cs" />
     <Compile Include="Duck.cs" />
     <Compile Include="DuckRepository.cs" />

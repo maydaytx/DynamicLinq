@@ -13,35 +13,33 @@ namespace DynamicLinq
 		internal const string AssemblyName = "DuckProxy";
 		internal const string ClassPrefix = "Duck";
 
-		private static AssemblyBuilder AssemblyBuilder { get; set; }
-		private static ModuleBuilder ModuleBuilder { get; set; }
+		private static readonly AssemblyBuilder assemblyBuilder;
+		private static readonly ModuleBuilder moduleBuilder;
 
-		private static int Count { get; set; }
-		private static IDictionary<string, Type> GeneratedDuckTypes { get; set; }
+		private static readonly IDictionary<string, Type> generatedDuckTypes;
 
 		static DuckRepository()
 		{
-			AssemblyBuilder = Thread.GetDomain().DefineDynamicAssembly(new AssemblyName(AssemblyName), AssemblyBuilderAccess.Run);
-			ModuleBuilder = AssemblyBuilder.DefineDynamicModule(AssemblyName);
-			GeneratedDuckTypes = new Dictionary<string, Type>();
-			Count = 0;
+			assemblyBuilder = Thread.GetDomain().DefineDynamicAssembly(new AssemblyName(AssemblyName), AssemblyBuilderAccess.Run);
+			moduleBuilder = assemblyBuilder.DefineDynamicModule(AssemblyName);
+			generatedDuckTypes = new Dictionary<string, Type>();
 		}
 
 		internal static object GenerateDuck(Type type)
 		{
-			return GenerateDuck(type.GUID.ToString(), Enumerable.Select(type.GetProperties(), p => new Tuple<string, Type>(p.Name, p.PropertyType)));
+			return GenerateDuck(Enumerable.Select(type.GetProperties(), p => new Tuple<string, Type>(p.Name, p.PropertyType)));
 		}
 
 		internal static object GenerateDuck(object obj)
 		{
 			Type type = obj.GetType();
 
-			return GenerateDuck(type.GUID.ToString(), Enumerable.Select(type.GetProperties(), p => new Tuple<string, Type, object>(p.Name, p.PropertyType, p.GetValue(obj, null))));
+			return GenerateDuck(Enumerable.Select(type.GetProperties(), p => new Tuple<string, Type, object>(p.Name, p.PropertyType, p.GetValue(obj, null))));
 		}
 
-		internal static object GenerateDuck(string id, IEnumerable<Tuple<string, Type, object>> properties)
+		internal static object GenerateDuck(IEnumerable<Tuple<string, Type, object>> properties)
 		{
-			Duck duck = (Duck) GenerateDuck(id, Enumerable.Select(properties, p => new Tuple<string, Type>(p.Item1, p.Item2)));
+			Duck duck = (Duck) GenerateDuck(Enumerable.Select(properties, p => new Tuple<string, Type>(p.Item1, p.Item2)));
 
 			foreach (Tuple<string, Type, object> property in properties)
 			{
@@ -52,19 +50,25 @@ namespace DynamicLinq
 			return duck;
 		}
 
-		internal static object GenerateDuck(string id, IEnumerable<Tuple<string, Type>> properties)
+		internal static object GenerateDuck(IEnumerable<Tuple<string, Type>> properties)
 		{
 			Type type;
 
-			lock (GeneratedDuckTypes)
+			lock (generatedDuckTypes)
 			{
-				if (GeneratedDuckTypes.ContainsKey(id))
+				AwesomeStringBuilder sb = new AwesomeStringBuilder();
+
+				sb = Enumerable.Aggregate(properties, sb, (current, property) => current + ("[" + property.Item1 + "][" + property.Item2.FullName + "]"));
+
+				string id = sb.ToString();
+
+				if (generatedDuckTypes.ContainsKey(id))
 				{
-					type = GeneratedDuckTypes[id];
+					type = generatedDuckTypes[id];
 				}
 				else
 				{
-					TypeBuilder typeBuilder = ModuleBuilder.DefineType(ClassPrefix + Count, TypeAttributes.Public | TypeAttributes.Class, typeof (Duck), new[] {typeof (ISerializable)});
+					TypeBuilder typeBuilder = moduleBuilder.DefineType(ClassPrefix + generatedDuckTypes.Count, TypeAttributes.Public | TypeAttributes.Class, typeof (Duck), new[] {typeof (ISerializable)});
 
 					typeBuilder.SetCustomAttribute(new CustomAttributeBuilder(typeof(SerializableAttribute).GetConstructor(new Type[0]), new object[0]));
 
@@ -75,9 +79,7 @@ namespace DynamicLinq
 
 					type = typeBuilder.CreateType();
 
-					++Count;
-
-					GeneratedDuckTypes.Add(id, type);
+					generatedDuckTypes.Add(id, type);
 				}
 			}
 

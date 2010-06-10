@@ -3,15 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using DynamicLinq.ClauseItems;
 
 namespace DynamicLinq
 {
 	internal class Query : IEnumerable<object>
 	{
-		private string id;
 		private readonly DB db;
 		private readonly string tableName;
-
+		private IList<Tuple<string, ClauseItem>> selectClauseItems;
 		private IEnumerable<object> results;
 
 		internal Query(DB db, string tableName)
@@ -20,18 +20,14 @@ namespace DynamicLinq
 			this.tableName = tableName;
 		}
 
-		internal void EnsureId(string id)
+		internal void SetSelectClauseItems(IList<Tuple<string, ClauseItem>> selectClauseItems)
 		{
-			if (this.id == null)
-				this.id = id;
+			this.selectClauseItems = selectClauseItems;
 		}
 
-		private string GetId()
+		private bool CreateDuck
 		{
-			if (id == null)
-				id = Guid.NewGuid().ToString();
-
-			return id;
+			get { return selectClauseItems == null || selectClauseItems.Count != 1 || selectClauseItems[0].Item1 != null; }
 		}
 
 		internal IEnumerable<object> Execute()
@@ -43,7 +39,19 @@ namespace DynamicLinq
 			{
 				using (IDbCommand command = connection.CreateCommand())
 				{
-					command.CommandText = "SELECT * FROM [" + tableName + "];";
+					IList<Tuple<string, object>> parameters = new List<Tuple<string, object>>(); ;
+
+					command.CommandText = BuildSQL(parameters);
+
+					foreach (Tuple<string, object> parameter in parameters)
+					{
+						IDbDataParameter dataParameter = command.CreateParameter();
+
+						dataParameter.ParameterName = parameter.Item1;
+						dataParameter.Value = parameter.Item2;
+
+						command.Parameters.Add(dataParameter);
+					}
 
 					using (IDataReader reader = command.ExecuteReader())
 					{
@@ -78,9 +86,43 @@ namespace DynamicLinq
 				}
 			}
 
-			results = Enumerable.Select(rows, row => DuckRepository.GenerateDuck(GetId(), Enumerable.Select(row, column => new Tuple<string, Type, object>(column.Item1, dataTypes[column.Item1], column.Item2))));
+			if (CreateDuck)
+				results = Enumerable.Select(rows, row => DuckRepository.GenerateDuck(Enumerable.Select(row, column => new Tuple<string, Type, object>(column.Item1, dataTypes[column.Item1], column.Item2))));
+			else
+				results = Enumerable.Select(rows, row => row.Single().Item2);
 
 			return results;
+		}
+
+		private string BuildSQL(IList<Tuple<string, object>> parameters)
+		{
+			AwesomeStringBuilder sql = new AwesomeStringBuilder("SELECT ");
+			bool notFirst = false;
+
+			if (selectClauseItems == null || selectClauseItems.Count == 0)
+			{
+				sql += "*";
+			}
+			else if (!CreateDuck)
+			{
+				sql += selectClauseItems[0].Item2.BuildClause(parameters);
+			}
+			else
+			{
+				foreach (var property in selectClauseItems)
+				{
+					if (notFirst)
+						sql += ", ";
+					else
+						notFirst = true;
+
+					sql += property.Item2.BuildClause(parameters) + " AS [" + property.Item1 + "]";
+				}
+			}
+
+			sql += " FROM [" + tableName + "]";
+
+			return sql.ToString();
 		}
 
 		private void EnsureExecution()
