@@ -12,6 +12,7 @@ namespace DynamicLinq
 		private readonly DB db;
 		private readonly string tableName;
 		private IList<Tuple<string, ClauseItem>> selectClauseItems;
+		private ClauseItem whereClause;
 		private IEnumerable<object> results;
 
 		internal Query(DB db, string tableName)
@@ -25,12 +26,17 @@ namespace DynamicLinq
 			this.selectClauseItems = selectClauseItems;
 		}
 
+		internal void SetWhereClause(ClauseItem whereClause)
+		{
+			this.whereClause = whereClause;
+		}
+
 		private bool CreateDuck
 		{
 			get { return selectClauseItems == null || selectClauseItems.Count != 1 || selectClauseItems[0].Item1 != null; }
 		}
 
-		internal IEnumerable<object> Execute()
+		private void Execute()
 		{
 			IDictionary<string, Type> dataTypes = new Dictionary<string, Type>();
 			IList<Tuple<string, object>[]> rows = new List<Tuple<string, object>[]>();
@@ -90,8 +96,6 @@ namespace DynamicLinq
 				results = Enumerable.Select(rows, row => DuckRepository.GenerateDuck(Enumerable.Select(row, column => new Tuple<string, Type, object>(column.Item1, dataTypes[column.Item1], column.Item2))));
 			else
 				results = Enumerable.Select(rows, row => row.Single().Item2);
-
-			return results;
 		}
 
 		private string BuildSQL(IList<Tuple<string, object>> parameters)
@@ -121,6 +125,9 @@ namespace DynamicLinq
 			}
 
 			sql += " FROM [" + tableName + "]";
+
+			if (!ReferenceEquals(whereClause, null))
+				sql += " WHERE " + whereClause.BuildClause(parameters);
 
 			return sql.ToString();
 		}
