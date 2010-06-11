@@ -8,9 +8,9 @@ using System.Threading;
 
 namespace DynamicLinq
 {
-	internal static class DuckRepository
+	public static class DuckRepository
 	{
-		internal const string AssemblyName = "DuckProxy";
+		internal const string AssemblyName = "Ducks";
 		internal const string ClassPrefix = "Duck";
 
 		private static readonly AssemblyBuilder assemblyBuilder;
@@ -25,14 +25,30 @@ namespace DynamicLinq
 			generatedDuckTypes = new Dictionary<string, Type>();
 		}
 
-		internal static object CreateDuck(Type duckType, IDictionary<string, Type> properties, IEnumerable<Tuple<string, object>> row)
+		public static object CreateDuck(string typeId, IEnumerable<Tuple<string, Type, object>> properties)
+		{
+			Type type = null;
+
+			lock (generatedDuckTypes)
+			{
+				if (generatedDuckTypes.ContainsKey(typeId))
+					type = generatedDuckTypes[typeId];
+			}
+
+			if (type == null)
+				type = GenerateDuckType(Enumerable.Select(properties, p => new Tuple<string, Type>(p.Item1, p.Item2)));
+
+			return CreateDuck(type, properties);
+		}
+
+		internal static object CreateDuck(Type duckType, IEnumerable<Tuple<string, Type, object>> properties)
 		{
 			Duck duck = (Duck) Activator.CreateInstance(duckType);
 
-			foreach (Tuple<string, object> property in row)
+			foreach (Tuple<string, Type, object> property in properties)
 			{
-				duck.EnsureProperty(property.Item1, properties[property.Item1]);
-				duck.SetPropertyValue(property.Item1, property.Item2);
+				duck.EnsureProperty(property.Item1, property.Item2);
+				duck.SetPropertyValue(property.Item1, property.Item3);
 			}
 
 			return duck;
@@ -42,23 +58,25 @@ namespace DynamicLinq
 		{
 			Type type;
 
+			AwesomeStringBuilder sb = new AwesomeStringBuilder();
+
+			sb = Enumerable.Aggregate(Enumerable.OrderBy(properties, p => p.Item1), sb, (current, property) => current + ("[" + property.Item1 + "][" + property.Item2.FullName + "]"));
+
+			string typeId = sb.ToString();
+
 			lock (generatedDuckTypes)
 			{
-				AwesomeStringBuilder sb = new AwesomeStringBuilder();
-
-				sb = Enumerable.Aggregate(Enumerable.OrderBy(properties, p => p.Item1), sb, (current, property) => current + ("[" + property.Item1 + "][" + property.Item2.FullName + "]"));
-
-				string id = sb.ToString();
-
-				if (generatedDuckTypes.ContainsKey(id))
+				if (generatedDuckTypes.ContainsKey(typeId))
 				{
-					type = generatedDuckTypes[id];
+					type = generatedDuckTypes[typeId];
 				}
 				else
 				{
-					TypeBuilder typeBuilder = moduleBuilder.DefineType(ClassPrefix + generatedDuckTypes.Count, TypeAttributes.Public | TypeAttributes.Class, typeof (Duck), new[] {typeof (ISerializable)});
+					TypeBuilder typeBuilder = moduleBuilder.DefineType(ClassPrefix + generatedDuckTypes.Count, TypeAttributes.Public | TypeAttributes.Class, typeof(Duck), new[] { typeof(ISerializable) });
 
 					typeBuilder.SetCustomAttribute(new CustomAttributeBuilder(typeof(SerializableAttribute).GetConstructor(new Type[0]), new object[0]));
+
+					DefineGetTypeId(typeBuilder, typeId);
 
 					DefineSerializationMethod(typeBuilder);
 
@@ -67,11 +85,32 @@ namespace DynamicLinq
 
 					type = typeBuilder.CreateType();
 
-					generatedDuckTypes.Add(id, type);
+					generatedDuckTypes.Add(typeId, type);
 				}
 			}
 
 			return type;
+		}
+
+		private static void DefineGetTypeId(TypeBuilder tb, string typeId)
+		{
+			MethodInfo method = typeof (Duck).GetMethod("GetTypeId", BindingFlags.NonPublic | BindingFlags.Instance);
+
+			MethodBuilder mb = DefineMethodSignature(tb, "GetTypeId", method.ReturnType, method.GetParameters());
+
+			ILGenerator gen = mb.GetILGenerator();
+
+			LocalBuilder init = gen.DeclareLocal(typeof (string));
+
+			gen.Nop();
+			gen.LoadString(typeId);
+			gen.StoreLocal(init);
+			Label label = gen.BreakShortForm();
+			gen.MarkLabel(label);
+			gen.LoadLocal(init);
+			gen.Return();
+
+			tb.DefineMethodOverride(mb, method);
 		}
 
 		private static void DefineSerializationMethod(TypeBuilder tb)

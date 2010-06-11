@@ -8,7 +8,7 @@ namespace DynamicLinq.Specs
 	public class When_predicating_on_a_boolean_column
 	{
 		private static dynamic db;
-		private static IList<long> result;
+		private static IList<long> results;
 
 		Establish context = () =>
 		{
@@ -27,25 +27,25 @@ INSERT INTO [Table] ([Id], [IsSomething]) VALUES (4, 0);"
 
 		Because of = () =>
 		{
-			result = (from record in (object)db.Table
-					  where record.IsSomething
-			          select record.Id).Cast<long>().ToList();
+			results = (from record in (object)db.Table
+					   where record.IsSomething
+			           select record.Id).Cast<long>().ToList();
 		};
 
 		It should_retrieve_the_records = () =>
 		{
-			result[0].ShouldEqual(1L);
-			result[1].ShouldEqual(3L);
+			results[0].ShouldEqual(1L);
+			results[1].ShouldEqual(3L);
 		};
 
 		It should_retrieve_2_records = () =>
-			result.Count.ShouldEqual(2);
+			results.Count.ShouldEqual(2);
 	}
 
 	public class When_predicating_on_a_clause
 	{
 		private static dynamic db;
-		private static IList<long> result;
+		private static IList<long> results;
 
 		Establish context = () =>
 		{
@@ -63,22 +63,22 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'John', 'Bobson')
 
 		Because of = () =>
 		{
-			result = (from record in (object)db.Table
-					  where record.FirstName != "John"
-					  select record.Id).Cast<long>().ToList();
+			results = (from record in (object)db.Table
+					   where record.FirstName != "John"
+					   select record.Id).Cast<long>().ToList();
 		};
 
 		It should_retrieve_the_records = () =>
-			result[0].ShouldEqual(2L);
+			results[0].ShouldEqual(2L);
 
 		It should_retrieve_1_record = () =>
-			result.Count.ShouldEqual(1);
+			results.Count.ShouldEqual(1);
 	}
 
 	public class When_predicating_on_a_like_clause
 	{
 		private static dynamic db;
-		private static IList<long> result;
+		private static IList<long> results;
 
 		Establish context = () =>
 		{
@@ -97,19 +97,19 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 
 		Because of = () =>
 		{
-			result = (from record in (object)db.Table
-					  where record.Name.Like("Sal%")
-					  select record.Id).Cast<long>().ToList();
+			results = (from record in (object)db.Table
+					   where record.Name.Like("Sal%")
+					   select record.Id).Cast<long>().ToList();
 		};
 
 		It should_retrieve_the_records = () =>
 		{
-			result[0].ShouldEqual(1L);
-			result[1].ShouldEqual(4L);
+			results[0].ShouldEqual(1L);
+			results[1].ShouldEqual(4L);
 		};
 
 		It should_retrieve_2_records = () =>
-			result.Count.ShouldEqual(2);
+			results.Count.ShouldEqual(2);
 	}
 
 	public class When_predicating_on_a_clause_with_external_functions
@@ -187,7 +187,7 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 	public class When_predicating_on_multiple_clauses
 	{
 		private static dynamic db;
-		private static IList<long> result;
+		private static IList<long> results;
 
 		private static bool IsSomething(dynamic obj)
 		{
@@ -211,16 +211,16 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 
 		private Because of = () =>
 		{
-			result = (from record in (object) db.Table
-			          where record.Name.Like("S%")
-			          where record.Id > 1
-			          select record.Id).Cast<long>().ToList();
+			results = (from record in (object) db.Table
+			           where record.Name.Like("S%")
+			           where record.Id > 1
+			           select record.Id).Cast<long>().ToList();
 		};
 
 		It should_retrieve_the_records = () =>
-			result[0].ShouldEqual(4L);
+			results[0].ShouldEqual(4L);
 
 		It should_retrieve_2_records = () =>
-			result.Count.ShouldEqual(1);
+			results.Count.ShouldEqual(1);
 	}
 }

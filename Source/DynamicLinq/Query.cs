@@ -99,7 +99,7 @@ namespace DynamicLinq
 			{
 				Type duckType = DuckRepository.GenerateDuckType(Enumerable.Select(dataTypes, t => new Tuple<string, Type>(t.Key, t.Value)));
 
-				results = Enumerable.Select(rows, row => DuckRepository.CreateDuck(duckType, dataTypes, row));
+				results = Enumerable.Select(rows, row => DuckRepository.CreateDuck(duckType, Enumerable.Select(row, column => new Tuple<string, Type, object>(column.Item1, dataTypes[column.Item1], column.Item2))));
 			}
 			else
 			{

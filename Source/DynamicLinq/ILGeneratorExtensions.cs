@@ -37,9 +37,58 @@ namespace DynamicLinq
 			gen.Emit(OpCodes.Ldstr, str);
 		}
 
+		public static void StoreLocal(this ILGenerator gen, LocalBuilder local)
+		{
+			switch (local.LocalIndex)
+			{
+				case 0:
+					gen.Emit(OpCodes.Stloc_0); break;
+				case 1:
+					gen.Emit(OpCodes.Stloc_1); break;
+				case 2:
+					gen.Emit(OpCodes.Stloc_2); break;
+				case 3:
+					gen.Emit(OpCodes.Stloc_3); break;
+				default:
+					gen.Emit(OpCodes.Stloc_S, local.LocalIndex); break;
+			}
+		}
+
+		public static void LoadLocal(this ILGenerator gen, LocalBuilder local)
+		{
+			OpCode ldLocOpCode;
+
+			switch (local.LocalIndex)
+			{
+				case 0:
+					ldLocOpCode = OpCodes.Ldloc_0; break;
+				case 1:
+					ldLocOpCode = OpCodes.Ldloc_1; break;
+				case 2:
+					ldLocOpCode = OpCodes.Ldloc_2; break;
+				case 3:
+					ldLocOpCode = OpCodes.Ldloc_3; break;
+				default:
+					ldLocOpCode = OpCodes.Ldloc_S; break;
+			}
+
+			if (ldLocOpCode == OpCodes.Ldloc_S)
+				gen.Emit(OpCodes.Ldloc_S, local.LocalIndex);
+			else gen.Emit(ldLocOpCode);
+		}
+
 		public static void Call<T>(this ILGenerator gen, string methodName, BindingFlags bindingFlags, params Type[] types)
 		{
 			gen.EmitCall(OpCodes.Call, typeof (T).GetMethod(methodName, bindingFlags, null, types, null), null);
+		}
+
+		public static Label BreakShortForm(this ILGenerator gen)
+		{
+			Label label = gen.DefineLabel();
+
+			gen.Emit(OpCodes.Br_S, label);
+
+			return label;
 		}
 
 		public static void Nop(this ILGenerator gen)
