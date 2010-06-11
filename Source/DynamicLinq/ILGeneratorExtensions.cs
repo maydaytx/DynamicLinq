@@ -6,12 +6,12 @@ namespace DynamicLinq
 {
 	internal static class ILGeneratorExtensions
 	{
-		public static void LoadThis(this ILGenerator gen)
+		internal static void LoadThis(this ILGenerator gen)
 		{
 			gen.Emit(OpCodes.Ldarg_0);
 		}
 
-		public static void LoadArgument(this ILGenerator gen, int index)
+		internal static void LoadArgument(this ILGenerator gen, int index)
 		{
 			switch (index)
 			{
@@ -26,18 +26,18 @@ namespace DynamicLinq
 			}
 		}
 
-		public static void LoadType(this ILGenerator gen, Type type)
+		internal static void LoadType(this ILGenerator gen, Type type)
 		{
 			gen.Emit(OpCodes.Ldtoken, type);
 			gen.Call<Type>("GetTypeFromHandle", BindingFlags.Public | BindingFlags.Static, typeof (RuntimeTypeHandle));
 		}
 
-		public static void LoadString(this ILGenerator gen, string str)
+		internal static void LoadString(this ILGenerator gen, string str)
 		{
 			gen.Emit(OpCodes.Ldstr, str);
 		}
 
-		public static void StoreLocal(this ILGenerator gen, LocalBuilder local)
+		internal static void StoreLocal(this ILGenerator gen, LocalBuilder local)
 		{
 			switch (local.LocalIndex)
 			{
@@ -54,7 +54,7 @@ namespace DynamicLinq
 			}
 		}
 
-		public static void LoadLocal(this ILGenerator gen, LocalBuilder local)
+		internal static void LoadLocal(this ILGenerator gen, LocalBuilder local)
 		{
 			OpCode ldLocOpCode;
 
@@ -77,12 +77,12 @@ namespace DynamicLinq
 			else gen.Emit(ldLocOpCode);
 		}
 
-		public static void Call<T>(this ILGenerator gen, string methodName, BindingFlags bindingFlags, params Type[] types)
+		internal static void Call<T>(this ILGenerator gen, string methodName, BindingFlags bindingFlags, params Type[] types)
 		{
 			gen.EmitCall(OpCodes.Call, typeof (T).GetMethod(methodName, bindingFlags, null, types, null), null);
 		}
 
-		public static Label BreakShortForm(this ILGenerator gen)
+		internal static Label BreakShortForm(this ILGenerator gen)
 		{
 			Label label = gen.DefineLabel();
 
@@ -91,23 +91,23 @@ namespace DynamicLinq
 			return label;
 		}
 
-		public static void Nop(this ILGenerator gen)
+		internal static void Nop(this ILGenerator gen)
 		{
 			gen.Emit(OpCodes.Nop);
 		}
 
-		public static void Return(this ILGenerator gen)
+		internal static void Return(this ILGenerator gen)
 		{
 			gen.Emit(OpCodes.Ret);
 		}
 
-		public static void BoxIfPrimitive(this ILGenerator gen, Type type)
+		internal static void BoxIfPrimitive(this ILGenerator gen, Type type)
 		{
 			if (type.IsValueType)
 				gen.Emit(OpCodes.Box, type);
 		}
 
-		public static void UnboxOrCast(this ILGenerator gen, Type type)
+		internal static void UnboxOrCast(this ILGenerator gen, Type type)
 		{
 			if (type.IsValueType)
 				gen.Emit(OpCodes.Unbox_Any, type);

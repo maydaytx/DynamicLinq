@@ -25,7 +25,7 @@ namespace DynamicLinq
 			generatedDuckTypes = new Dictionary<string, Type>();
 		}
 
-		public static object CreateDuck(string typeId, IEnumerable<Tuple<string, Type, object>> properties)
+		internal static object CreateDuck(string typeId, IEnumerable<Tuple<string, Type, object>> properties)
 		{
 			Type type = null;
 
