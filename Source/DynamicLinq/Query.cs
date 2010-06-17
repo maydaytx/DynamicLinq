@@ -146,7 +146,7 @@ namespace DynamicLinq
 			}
 			else
 			{
-				return Convert.ChangeType(value, type);
+				return System.Convert.ChangeType(value, type);
 			}
 		}
 
