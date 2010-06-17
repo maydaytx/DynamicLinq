@@ -5,8 +5,8 @@ namespace DynamicLinq.ClauseItems
 {
 	public class InOperation : ClauseItem
 	{
-		internal ClauseItem item;
-		internal IEnumerable<ClauseItem> list;
+		private readonly ClauseItem item;
+		private readonly IEnumerable<ClauseItem> list;
 
 		internal InOperation(ClauseItem item, IEnumerable<ClauseItem> list)
 		{

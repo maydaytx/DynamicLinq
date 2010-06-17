@@ -113,12 +113,12 @@ namespace DynamicLinq.ClauseItems
 
 		public static ClauseItem operator ++(ClauseItem x)
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException();
 		}
 
 		public static ClauseItem operator --(ClauseItem x)
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException();
 		}
 
 		public static bool operator true(ClauseItem x)
@@ -173,17 +173,17 @@ namespace DynamicLinq.ClauseItems
 
 		public static ClauseItem operator ^(ClauseItem x, ClauseItem y)
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException();
 		}
 
 		public static ClauseItem operator <<(ClauseItem x, int y)
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException();
 		}
 
 		public static ClauseItem operator >>(ClauseItem x, int y)
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException();
 		}
 
 		//==, !=, <, >, <=, >=
@@ -229,6 +229,11 @@ namespace DynamicLinq.ClauseItems
 			return new InOperation(this, list);
 		}
 
+		public ClauseItem To<T>()
+		{
+			return new ConvertOperation(this, typeof (T));
+		}
+
 		public new ClauseItem Equals(object obj)
 		{
 			if (obj is ClauseGetter)
@@ -241,7 +246,7 @@ namespace DynamicLinq.ClauseItems
 
 		public override int GetHashCode()
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException();
 		}
 	}
 }

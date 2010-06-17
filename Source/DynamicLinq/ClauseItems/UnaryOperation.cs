@@ -5,8 +5,8 @@ namespace DynamicLinq.ClauseItems
 {
 	public class UnaryOperation : ClauseItem
 	{
-		internal UnaryOperator @operator;
-		internal ClauseItem item;
+		private readonly UnaryOperator @operator;
+		private readonly ClauseItem item;
 
 		internal UnaryOperation(UnaryOperator @operator, ClauseItem item)
 		{

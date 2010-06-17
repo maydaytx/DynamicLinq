@@ -47,6 +47,7 @@
     <Compile Include="ClauseItems\ClauseItem.cs" />
     <Compile Include="ClauseItems\Column.cs" />
     <Compile Include="ClauseItems\Constant.cs" />
+    <Compile Include="ClauseItems\ConvertOperation.cs" />
     <Compile Include="ClauseItems\InOperation.cs" />
     <Compile Include="ClauseItems\UnaryOperation.cs" />
     <Compile Include="ClauseItems\UnaryOperator.cs" />

@@ -65,7 +65,7 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 			results.Count.ShouldEqual(3);
 	}
 
-	public class When_selecting_and_casting_a_single_column
+	public class When_selecting_and_explicitly_casting_a_single_column
 	{
 		private static dynamic db;
 		private static Exception exception;
@@ -92,6 +92,35 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 
 		It should_not_allow = () =>
 			exception.ShouldNotBeNull();
+	}
+
+	public class When_selecting_and_explicitly_converting_a_single_column
+	{
+		private static dynamic db;
+		private static IList<int> results;
+
+		Establish context = () =>
+		{
+			var getConnection = SQLite.CreateInMemoryDatabase
+			(
+@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name]);
+
+INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
+INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Name2');
+INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
+			);
+
+			db = new DB(getConnection);
+		};
+
+		Because of = () =>
+		{
+			results = (from record in (object) db.Table
+			           select record.Id.To<int>()).Cast<int>().ToList();
+		};
+
+		It should_retrieve_3_records = () =>
+			results.Count.ShouldEqual(3);
 	}
 
 	public class When_selecting_an_expression_without_a_supplied_name
@@ -205,6 +234,55 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3'
 			((object)results[1].FirstName).ShouldEqual("First2");
 			((object)results[2].Id).ShouldEqual(3L);
 			((object)results[2].FirstName).ShouldEqual("First3");
+		};
+
+		It should_retrieve_3_records = () =>
+			results.Count.ShouldEqual(3);
+
+		It should_retrieve_2_columns = () =>
+			((object)results[0]).GetType().GetProperties().Length.ShouldEqual(2);
+	}
+
+	public class When_selecting_specific_columns_and_explicitly_converting_one
+	{
+		private static dynamic db;
+		private static IList<dynamic> results;
+
+		public enum Status
+		{
+			SomeStatus1 = 1,
+			SomeStatus2 = 2,
+			SomeStatus3 = 3
+		}
+
+		Establish context = () =>
+		{
+			var getConnection = SQLite.CreateInMemoryDatabase
+			(
+@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name], [Status]);
+
+INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (1, 'Name1', 1);
+INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (2, 'Name2', 2);
+INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (3, 'Name3', 3);"
+			);
+
+			db = new DB(getConnection);
+		};
+
+		Because of = () =>
+		{
+			results = (from record in (object)db.Table
+					   select new { record.Id, Status = record.Status.To<Status>() }).ToList();
+		};
+
+		It should_retrieve_the_records = () =>
+		{
+			((object)results[0].Id).ShouldEqual(1L);
+			((object)results[0].Status).ShouldEqual(Status.SomeStatus1);
+			((object)results[1].Id).ShouldEqual(2L);
+			((object)results[1].Status).ShouldEqual(Status.SomeStatus2);
+			((object)results[2].Id).ShouldEqual(3L);
+			((object)results[2].Status).ShouldEqual(Status.SomeStatus3);
 		};
 
 		It should_retrieve_3_records = () =>

@@ -14,6 +14,7 @@ namespace DynamicLinq
 		private IList<Tuple<string, ClauseItem>> selectClauseItems;
 		private ClauseItem whereClause;
 		private IEnumerable<object> results;
+		private bool needsDuck;
 
 		internal Query(DB db, string tableName)
 		{
@@ -21,22 +22,22 @@ namespace DynamicLinq
 			this.tableName = tableName;
 		}
 
-		internal void SetSelectClauseItems(IList<Tuple<string, ClauseItem>> selectClauseItems)
+		internal void SetSelectClauseItems(IList<Tuple<string, ClauseItem>> clauseItems)
 		{
-			this.selectClauseItems = selectClauseItems;
+			selectClauseItems = clauseItems;
+
+			needsDuck = clauseItems == null || clauseItems.Count != 1 || clauseItems[0].Item1 != null;
+
+			if (!needsDuck)
+				selectClauseItems[0] = new Tuple<string, ClauseItem>(string.Empty, selectClauseItems[0].Item2);
 		}
 
-		internal void AddWhereClause(ClauseItem whereClause)
+		internal void AddWhereClause(ClauseItem clauseItem)
 		{
-			if (ReferenceEquals(this.whereClause, null))
-				this.whereClause = whereClause;
+			if (ReferenceEquals(whereClause, null))
+				whereClause = clauseItem;
 			else
-				this.whereClause = new BinaryOperation(BinaryOperator.And, this.whereClause, whereClause);
-		}
-
-		private bool NeedsDuck
-		{
-			get { return selectClauseItems == null || selectClauseItems.Count != 1 || selectClauseItems[0].Item1 != null; }
+				whereClause = new BinaryOperation(BinaryOperator.And, whereClause, clauseItem);
 		}
 
 		private void Execute()
@@ -48,9 +49,10 @@ namespace DynamicLinq
 			{
 				using (IDbCommand command = connection.CreateCommand())
 				{
-					IList<Tuple<string, object>> parameters = new List<Tuple<string, object>>(); ;
+					IList<Tuple<string, object>> parameters = new List<Tuple<string, object>>();
+					IDictionary<string, Type> conversions = new Dictionary<string, Type>();
 
-					command.CommandText = BuildSQL(parameters);
+					command.CommandText = BuildSQL(parameters, conversions);
 
 					foreach (Tuple<string, object> parameter in parameters)
 					{
@@ -64,8 +66,6 @@ namespace DynamicLinq
 
 					using (IDataReader reader = command.ExecuteReader())
 					{
-						bool first = true;
-
 						while (reader.Read())
 						{
 							Tuple<string, object>[] row = new Tuple<string, object>[reader.FieldCount];
@@ -79,23 +79,42 @@ namespace DynamicLinq
 								object value = reader.GetValue(i);
 								value = value == DBNull.Value ? null : value;
 
-								if (first)
+								bool useFirstConversion = !needsDuck && conversions.Count > 0;
+
+								if (value == null && dataType.IsValueType)
+								{
+									if (conversions.ContainsKey(name))
+										dataType = typeof (Nullable<>).MakeGenericType(conversions[name]);
+									else if (useFirstConversion)
+										dataType = typeof (Nullable<>).MakeGenericType(Enumerable.First(conversions.Values));
+									else
+										dataType = typeof (Nullable<>).MakeGenericType(dataType);
+								}
+								else if (conversions.ContainsKey(name) || useFirstConversion)
+								{
+									if (useFirstConversion)
+										dataType = Enumerable.First(conversions.Values);
+									else
+										dataType = conversions[name];
+
+									value = Convert(value, dataType);
+								}
+
+								if (dataTypes.ContainsKey(name))
+									dataTypes[name] = dataType;
+								else
 									dataTypes.Add(name, dataType);
-								else if (value == null && dataType.IsValueType)
-									dataTypes[name] = typeof (Nullable<>).MakeGenericType(dataType);
 
 								row[i] = new Tuple<string, object>(name, value);
 							}
 
 							rows.Add(row);
-
-							first = false;
 						}
 					}
 				}
 			}
 
-			if (NeedsDuck)
+			if (needsDuck)
 			{
 				Type duckType = DuckRepository.GenerateDuckType(Enumerable.Select(dataTypes, t => new Tuple<string, Type>(t.Key, t.Value)));
 
@@ -107,7 +126,31 @@ namespace DynamicLinq
 			}
 		}
 
-		private string BuildSQL(IList<Tuple<string, object>> parameters)
+		private static object Convert(object value, Type type)
+		{
+			if (type.IsEnum)
+			{
+				if (value is string)
+					return Enum.Parse(type, (string) value);
+				else
+					return Enum.ToObject(type, value);
+			}
+			else if (value is string)
+			{
+				if (type == typeof (Guid))
+					return new Guid((string) value);
+				else if (type == typeof (DateTime))
+					return DateTime.Parse((string) value);
+				else
+					throw new InvalidCastException("string to " + type.FullName);
+			}
+			else
+			{
+				return Convert.ChangeType(value, type);
+			}
+		}
+
+		private string BuildSQL(IList<Tuple<string, object>> parameters, IDictionary<string, Type> conversions)
 		{
 			AwesomeStringBuilder sql = new AwesomeStringBuilder("SELECT ");
 			bool notFirst = false;
@@ -116,9 +159,11 @@ namespace DynamicLinq
 			{
 				sql += "*";
 			}
-			else if (!NeedsDuck)
+			else if (!needsDuck)
 			{
-				sql += selectClauseItems[0].Item2.BuildClause(parameters);
+				ClauseItem item = CheckForConversion(selectClauseItems[0], conversions);
+
+				sql += item.BuildClause(parameters);
 			}
 			else
 			{
@@ -129,7 +174,9 @@ namespace DynamicLinq
 					else
 						notFirst = true;
 
-					sql += property.Item2.BuildClause(parameters) + " AS [" + property.Item1 + "]";
+					ClauseItem item = CheckForConversion(property, conversions);
+
+					sql += item.BuildClause(parameters) + " AS [" + property.Item1 + "]";
 				}
 			}
 
@@ -139,6 +186,22 @@ namespace DynamicLinq
 				sql += " WHERE " + whereClause.BuildClause(parameters);
 
 			return sql.ToString();
+		}
+
+		private static ClauseItem CheckForConversion(Tuple<string, ClauseItem> property, IDictionary<string, Type> conversions)
+		{
+			ClauseItem item = property.Item2;
+
+			if (item is ConvertOperation)
+			{
+				ConvertOperation convert = (ConvertOperation) item;
+
+				conversions.Add(property.Item1, convert.Type);
+
+				item = convert.Item;
+			}
+
+			return item;
 		}
 
 		private void EnsureExecution()
