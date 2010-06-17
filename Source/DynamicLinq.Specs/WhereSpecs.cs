@@ -153,11 +153,6 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 		private static dynamic db;
 		private static Exception exception;
 
-		private static bool IsSomething(dynamic obj)
-		{
-			return true;
-		}
-
 		Establish context = () =>
 		{
 			var getConnection = SQLite.CreateInMemoryDatabase
@@ -189,11 +184,6 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 		private static dynamic db;
 		private static IList<long> results;
 
-		private static bool IsSomething(dynamic obj)
-		{
-			return true;
-		}
-
 		Establish context = () =>
 		{
 			var getConnection = SQLite.CreateInMemoryDatabase
@@ -220,7 +210,41 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 		It should_retrieve_the_records = () =>
 			results[0].ShouldEqual(4L);
 
-		It should_retrieve_2_records = () =>
+		It should_retrieve_1_records = () =>
+			results.Count.ShouldEqual(1);
+	}
+
+	public class When_comparing_something_to_null
+	{
+		private static dynamic db;
+		private static IList<long> results;
+
+		Establish context = () =>
+		{
+			var getConnection = SQLite.CreateInMemoryDatabase
+				(
+@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name]);
+
+INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Sal');
+INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Bob');
+INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Joe');
+INSERT INTO [Table] ([Id]) VALUES (4);"
+				);
+
+			db = new DB(getConnection);
+		};
+
+		private Because of = () =>
+		{
+			results = (from record in (object)db.Table
+					   where record.Name == null
+					   select record.Id).Cast<long>().ToList();
+		};
+
+		It should_retrieve_the_records = () =>
+			results[0].ShouldEqual(4L);
+
+		It should_retrieve_1_records = () =>
 			results.Count.ShouldEqual(1);
 	}
 }

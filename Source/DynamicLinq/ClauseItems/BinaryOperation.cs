@@ -18,66 +18,74 @@ namespace DynamicLinq.ClauseItems
 
 		internal override AwesomeStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
 		{
-			AwesomeStringBuilder clause = "(" + leftItem.BuildClause(parameters) + " ";
+			string operatorString;
 
 			switch (@operator)
 			{
-					case BinaryOperator.Add:
-						if (EvaluatesToString(leftItem))
-							clause += "||";
-						else
-							clause += "+";
-						break;
-					case BinaryOperator.Subtract:
-						clause += "-";
-						break;
-					case BinaryOperator.Multiply:
-						clause += "*";
-						break;
-					case BinaryOperator.Divide:
-						clause += "/";
-						break;
-					case BinaryOperator.Mod:
-						clause += "%";
-						break;
-					case BinaryOperator.And:
-						clause += "AND";
-						break;
-					case BinaryOperator.Or:
-						clause += "OR";
-						break;
-					case BinaryOperator.Equal:
-						if (rightItem is Constant && ((Constant) rightItem).Object == null)
-							clause += "IS";
-						else
-							clause += "=";
-						break;
-					case BinaryOperator.NotEqual:
-						if (rightItem is Constant && ((Constant) rightItem).Object == null)
-							clause += "IS NOT";
-						else
-							clause += "<>";
-						break;
-					case BinaryOperator.LessThan:
-						clause += "<";
-						break;
-					case BinaryOperator.GreaterThan:
-						clause += ">";
-						break;
-					case BinaryOperator.LessThanOrEqual:
-						clause += "<=";
-						break;
-					case BinaryOperator.GreaterThanOrEqual:
-						clause += ">=";
-						break;
-					case BinaryOperator.Like:
-						clause += "LIKE";
-						break;
-					default:
-						throw new ArgumentOutOfRangeException();
+				case BinaryOperator.Add:
+					if (EvaluatesToString(leftItem))
+						operatorString = "||";
+					else
+						operatorString = "+";
+					break;
+				case BinaryOperator.Subtract:
+					operatorString = "-";
+					break;
+				case BinaryOperator.Multiply:
+					operatorString = "*";
+					break;
+				case BinaryOperator.Divide:
+					operatorString = "/";
+					break;
+				case BinaryOperator.Mod:
+					operatorString = "%";
+					break;
+				case BinaryOperator.And:
+					operatorString = "AND";
+					break;
+				case BinaryOperator.Or:
+					operatorString = "OR";
+					break;
+				case BinaryOperator.Equal:
+					if (ReferenceEquals(leftItem, null) && ReferenceEquals(rightItem, null))
+						return new AwesomeStringBuilder("(TRUE)");
+					else if (ReferenceEquals(leftItem, null))
+						return "(" + rightItem.BuildClause(parameters) + "IS NULL)";
+					else if (ReferenceEquals(rightItem, null))
+						return "(" + leftItem.BuildClause(parameters) + "IS NULL)";
+					else
+						operatorString = "=";
+					break;
+				case BinaryOperator.NotEqual:
+					if (ReferenceEquals(leftItem, null) && ReferenceEquals(rightItem, null))
+						return new AwesomeStringBuilder("(FALSE)");
+					else if (ReferenceEquals(leftItem, null))
+						return "(" + rightItem.BuildClause(parameters) + "IS NOT NULL)";
+					else if (ReferenceEquals(rightItem, null))
+						return "(" + leftItem.BuildClause(parameters) + "IS NOT NULL)";
+					else
+						operatorString = "<>";
+					break;
+				case BinaryOperator.LessThan:
+					operatorString = "<";
+					break;
+				case BinaryOperator.GreaterThan:
+					operatorString = ">";
+					break;
+				case BinaryOperator.LessThanOrEqual:
+					operatorString = "<=";
+					break;
+				case BinaryOperator.GreaterThanOrEqual:
+					operatorString = ">=";
+					break;
+				case BinaryOperator.Like:
+					operatorString = "LIKE";
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
 			}
 
-			return clause + " " + rightItem.BuildClause(parameters) + ")";
+			return "(" + leftItem.BuildClause(parameters) + " " + operatorString + " " + rightItem.BuildClause(parameters) + ")";
 		}
 
 		private static bool EvaluatesToString(ClauseItem clauseItem)
