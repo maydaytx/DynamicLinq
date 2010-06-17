@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.Serialization;
 using DynamicLinq.ClauseItems;
 
 namespace DynamicLinq
 {
-	internal class Query : IEnumerable<object>
+	[Serializable]
+	internal class Query : IEnumerable<object>, ISerializable
 	{
 		private readonly DB db;
 		private readonly string tableName;
@@ -20,6 +22,11 @@ namespace DynamicLinq
 		{
 			this.db = db;
 			this.tableName = tableName;
+		}
+
+		private Query(SerializationInfo info, StreamingContext context)
+		{
+			results = (IEnumerable<object>) info.GetValue("Results", typeof (IEnumerable<object>));
 		}
 
 		internal void SetSelectClauseItems(IList<Tuple<string, ClauseItem>> clauseItems)
@@ -222,6 +229,13 @@ namespace DynamicLinq
 			EnsureExecution();
 
 			return results.GetEnumerator();
+		}
+
+		public void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			EnsureExecution();
+
+			info.AddValue("Results", results.ToList(), typeof (IEnumerable<object>));
 		}
 	}
 }
