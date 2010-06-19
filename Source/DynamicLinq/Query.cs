@@ -88,16 +88,7 @@ namespace DynamicLinq
 
 								bool useFirstConversion = !needsDuck && conversions.Count > 0;
 
-								if (value == null && dataType.IsValueType)
-								{
-									if (conversions.ContainsKey(name))
-										dataType = typeof (Nullable<>).MakeGenericType(conversions[name]);
-									else if (useFirstConversion)
-										dataType = typeof (Nullable<>).MakeGenericType(Enumerable.First(conversions.Values));
-									else
-										dataType = typeof (Nullable<>).MakeGenericType(dataType);
-								}
-								else if (conversions.ContainsKey(name) || useFirstConversion)
+								if (conversions.ContainsKey(name) || useFirstConversion)
 								{
 									if (useFirstConversion)
 										dataType = Enumerable.First(conversions.Values);
@@ -105,6 +96,19 @@ namespace DynamicLinq
 										dataType = conversions[name];
 
 									value = Convert(value, dataType);
+								}
+
+								if (value == null)
+								{
+									Type currentDataType;
+
+									if (dataTypes.TryGetValue(name, out currentDataType))
+									{
+										if (currentDataType.IsValueType)
+											dataType = typeof(Nullable<>).MakeGenericType(currentDataType);
+										else if (dataType.IsValueType)
+											dataType = typeof(Nullable<>).MakeGenericType(dataType);
+									}
 								}
 
 								if (dataTypes.ContainsKey(name))

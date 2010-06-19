@@ -75,8 +75,8 @@ INSERT INTO [Table] ([Id], [Name], [Time]) VALUES (2, 'Name2', '2001-09-11');"
 			IList<object> results = (from record in (object) db.Table
 			                         select new {record.Name, record.Time}).ToList();
 
-			result1 = results[0].Serialize().Deserialize<object>();
-			result2 = results[1].Serialize().Deserialize<object>();
+			result1 = results[0];
+			result2 = results[1];
 
 			deserializedResult1 = result1.Serialize().Deserialize<object>();
 			deserializedResult2 = result2.Serialize().Deserialize<object>();
@@ -101,8 +101,6 @@ INSERT INTO [Table] ([Id], [Name], [Time]) VALUES (2, 'Name2', '2001-09-11');"
 	public class When_deserializing_unenumerated_results
 	{
 		private static dynamic db;
-		private static object result1;
-		private static object result2;
 		private static dynamic deserializedResult1;
 		private static dynamic deserializedResult2;
 
@@ -126,11 +124,8 @@ INSERT INTO [Table] ([Id], [Name], [Time]) VALUES (2, 'Name2', '2001-09-11');"
 
 			IList<object> deserializedResults = results.Serialize().Deserialize<IEnumerable<object>>().ToList();
 
-			result1 = deserializedResults[0].Serialize().Deserialize<object>();
-			result2 = deserializedResults[1].Serialize().Deserialize<object>();
-
-			deserializedResult1 = result1.Serialize().Deserialize<object>();
-			deserializedResult2 = result2.Serialize().Deserialize<object>();
+			deserializedResult1 = deserializedResults[0].Serialize().Deserialize<object>();
+			deserializedResult2 = deserializedResults[1].Serialize().Deserialize<object>();
 		};
 
 		It should_create_a_duck_type_with_the_same_properties = () =>
@@ -140,12 +135,49 @@ INSERT INTO [Table] ([Id], [Name], [Time]) VALUES (2, 'Name2', '2001-09-11');"
 			((object)deserializedResult2.Name).ShouldEqual("Name2");
 			((object)deserializedResult2.Time).ShouldEqual(new DateTime(2001, 09, 11));
 		};
+	}
+
+	public class When_deserializing_results_with_nullable_columns_in_different_app_domains
+	{
+		private static dynamic db;
+		private static dynamic deserializedResult1;
+		private static dynamic deserializedResult2;
+
+		Establish context = () =>
+		{
+			var getConnection = SQLite.CreateInMemoryDatabase
+			(
+@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name], [Value]);
+
+INSERT INTO [Table] ([Id], [Name], [Value]) VALUES (1, 'Name1', 1);
+INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Name2');"
+			);
+
+			db = new DB(getConnection);
+		};
+
+		Because of = () =>
+		{
+			byte[] serializedResults = (from record in (object) db.Table
+			                            select new {record.Name, record.Value}).ToList().Serialize();
+
+			DuckRepository.ResetCache();
+
+			IList<object> deserializedResults = serializedResults.Deserialize<IList<object>>();
+
+			deserializedResult1 = deserializedResults[0];
+			deserializedResult2 = deserializedResults[1];
+		};
+
+		It should_create_a_duck_type_with_the_same_properties = () =>
+		{
+			((object)deserializedResult1.Name).ShouldEqual("Name1");
+			((object)deserializedResult1.Value).ShouldEqual(1L);
+			((object)deserializedResult2.Name).ShouldEqual("Name2");
+			((object)deserializedResult2.Value).ShouldEqual(null);
+		};
 
 		It should_be_the_same_type = () =>
-		{
-			((object)deserializedResult1).ShouldBeOfType(result1.GetType());
-			((object)deserializedResult2).ShouldBeOfType(result2.GetType());
-			result1.ShouldBeOfType(result2.GetType());
-		};
+			((object)deserializedResult1).ShouldBeOfType(((object)deserializedResult2).GetType());
 	}
 }

@@ -17,12 +17,22 @@ namespace DynamicLinq
 		private static readonly ModuleBuilder moduleBuilder;
 
 		private static readonly IDictionary<string, Type> generatedDuckTypes;
+		private static int count;
 
 		static DuckRepository()
 		{
 			assemblyBuilder = Thread.GetDomain().DefineDynamicAssembly(new AssemblyName(AssemblyName), AssemblyBuilderAccess.Run);
 			moduleBuilder = assemblyBuilder.DefineDynamicModule(AssemblyName);
 			generatedDuckTypes = new Dictionary<string, Type>();
+			count = 0;
+		}
+
+		public static void ResetCache()
+		{
+			lock (generatedDuckTypes)
+			{
+				generatedDuckTypes.Clear();
+			}
 		}
 
 		internal static object CreateDuck(string typeId, IEnumerable<Tuple<string, Type, object>> properties)
@@ -54,15 +64,9 @@ namespace DynamicLinq
 			return duck;
 		}
 
-		internal static Type GenerateDuckType(IEnumerable<Tuple<string, Type>> properties)
+		internal static Type GenerateDuckType(string typeId)
 		{
 			Type type;
-
-			AwesomeStringBuilder sb = new AwesomeStringBuilder();
-
-			sb = Enumerable.Aggregate(Enumerable.OrderBy(properties, p => p.Item1), sb, (current, property) => current + ("[" + property.Item1 + "][" + property.Item2.FullName + "]"));
-
-			string typeId = sb.ToString();
 
 			lock (generatedDuckTypes)
 			{
@@ -72,9 +76,44 @@ namespace DynamicLinq
 				}
 				else
 				{
-					TypeBuilder typeBuilder = moduleBuilder.DefineType(ClassPrefix + generatedDuckTypes.Count, TypeAttributes.Public | TypeAttributes.Class, typeof(Duck), new[] { typeof(ISerializable) });
+					string[] propertiesAndTypes = typeId.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries);
 
-					typeBuilder.SetCustomAttribute(new CustomAttributeBuilder(typeof(SerializableAttribute).GetConstructor(new Type[0]), new object[0]));
+					Tuple<string, Type>[] properties = new Tuple<string, Type>[propertiesAndTypes.Length/2];
+
+					for (int i = 0; i < propertiesAndTypes.Length; i += 2)
+						properties[i/2] = new Tuple<string, Type>(propertiesAndTypes[i], Type.GetType(propertiesAndTypes[i + 1]));
+
+					type = GenerateDuckType(typeId, properties);
+				}
+			}
+
+			return type;
+		}
+
+		internal static Type GenerateDuckType(IEnumerable<Tuple<string, Type>> properties)
+		{
+			AwesomeStringBuilder sb = new AwesomeStringBuilder();
+
+			string typeId = Enumerable.Aggregate(Enumerable.OrderBy(properties, p => p.Item1), sb, (current, property) => current + (property.Item1 + '|' + property.Item2.AssemblyQualifiedName + '|')).ToString();
+
+			return GenerateDuckType(typeId, properties);
+		}
+
+		internal static Type GenerateDuckType(string typeId, IEnumerable<Tuple<string, Type>> properties)
+		{
+			Type type;
+
+			lock (generatedDuckTypes)
+			{
+				if (generatedDuckTypes.ContainsKey(typeId))
+				{
+					type = generatedDuckTypes[typeId];
+				}
+				else
+				{
+					TypeBuilder typeBuilder = moduleBuilder.DefineType(ClassPrefix + count, TypeAttributes.Public | TypeAttributes.Class, typeof(Duck), new[] { typeof(ISerializable) });
+
+					typeBuilder.SetCustomAttribute(new CustomAttributeBuilder(typeof (SerializableAttribute).GetConstructor(new Type[0]), new object[0]));
 
 					DefineGetTypeId(typeBuilder, typeId);
 
@@ -84,6 +123,8 @@ namespace DynamicLinq
 						DefineProperty(typeBuilder, property.Item1, property.Item2);
 
 					type = typeBuilder.CreateType();
+
+					++count;
 
 					generatedDuckTypes.Add(typeId, type);
 				}

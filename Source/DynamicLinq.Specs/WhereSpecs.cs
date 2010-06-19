@@ -247,4 +247,45 @@ INSERT INTO [Table] ([Id]) VALUES (4);"
 		It should_retrieve_1_records = () =>
 			results.Count.ShouldEqual(1);
 	}
+
+	public class When_comparing_something_to_an_enum
+	{
+		private static dynamic db;
+		private static IList<long> results;
+
+		public enum Status
+		{
+			SomeStatus1 = 1,
+			SomeStatus2 = 2,
+			SomeStatus3 = 3
+		}
+
+		Establish context = () =>
+		{
+			var getConnection = SQLite.CreateInMemoryDatabase
+				(
+@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name], [Status]);
+
+INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (1, 'Sal', 1);
+INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (2, 'Bob', 2);
+INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (3, 'Joe', 3);
+INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
+				);
+
+			db = new DB(getConnection);
+		};
+
+		private Because of = () =>
+		{
+			results = (from record in (object)db.Table
+					   where record.Status == (int) Status.SomeStatus2
+					   select record.Id).Cast<long>().ToList();
+		};
+
+		It should_retrieve_the_records = () =>
+			results[0].ShouldEqual(2L);
+
+		It should_retrieve_1_records = () =>
+			results.Count.ShouldEqual(1);
+	}
 }

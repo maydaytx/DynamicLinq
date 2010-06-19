@@ -77,13 +77,15 @@ namespace DynamicLinq
 			{
 				string typeId = info.GetString(TypeIdSerializationName);
 
+				Type duckType = DuckRepository.GenerateDuckType(typeId);
+
 				IList<Tuple<string, Type, object>> serializationInfo = new List<Tuple<string, Type, object>>();
 
 				foreach (SerializationEntry serializationEntry in info)
 					if (serializationEntry.Name != TypeIdSerializationName)
 						serializationInfo.Add(new Tuple<string, Type, object>(serializationEntry.Name, serializationEntry.ObjectType, serializationEntry.Value));
 
-				return DuckRepository.CreateDuck(typeId, serializationInfo);
+				return DuckRepository.CreateDuck(duckType, serializationInfo);
 			}
 		}
 	}
