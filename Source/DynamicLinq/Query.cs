@@ -95,7 +95,8 @@ namespace DynamicLinq
 									else
 										dataType = conversions[name];
 
-									value = Convert(value, dataType);
+									if (value != null)
+										value = Convert(value, dataType);
 								}
 
 								if (value == null)
@@ -104,10 +105,10 @@ namespace DynamicLinq
 
 									if (dataTypes.TryGetValue(name, out currentDataType))
 									{
-										if (currentDataType.IsValueType)
-											dataType = typeof(Nullable<>).MakeGenericType(currentDataType);
-										else if (dataType.IsValueType)
-											dataType = typeof(Nullable<>).MakeGenericType(dataType);
+										if (currentDataType.IsValueType && !IsNullable(currentDataType))
+											dataType = typeof (Nullable<>).MakeGenericType(currentDataType);
+										else if (dataType.IsValueType && !IsNullable(dataType))
+											dataType = typeof (Nullable<>).MakeGenericType(dataType);
 									}
 								}
 
@@ -137,6 +138,11 @@ namespace DynamicLinq
 			}
 		}
 
+		private static bool IsNullable(Type type)
+		{
+			return type.IsGenericType && type.GetGenericTypeDefinition() == typeof (Nullable<>);
+		}
+
 		private static object Convert(object value, Type type)
 		{
 			if (type.IsEnum)
@@ -154,6 +160,12 @@ namespace DynamicLinq
 					return DateTime.Parse((string) value);
 				else
 					throw new InvalidCastException("string to " + type.FullName);
+			}
+			else if (IsNullable(type))
+			{
+				Type valueType = type.GetGenericArguments()[0];
+
+				return type.GetConstructor(new[] {valueType}).Invoke(new[] {Convert(value, valueType)});
 			}
 			else
 			{

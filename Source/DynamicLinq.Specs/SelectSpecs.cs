@@ -123,6 +123,35 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 			results.Count.ShouldEqual(3);
 	}
 
+	public class When_selecting_and_explicitly_converting_a_single_column_that_can_be_null
+	{
+		private static dynamic db;
+		private static IList<int?> results;
+
+		Establish context = () =>
+		{
+			var getConnection = SQLite.CreateInMemoryDatabase
+			(
+@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Value]);
+
+INSERT INTO [Table] ([Id]) VALUES (1);
+INSERT INTO [Table] ([Id], [Value]) VALUES (2, 1);
+INSERT INTO [Table] ([Id]) VALUES (3);"
+			);
+
+			db = new DB(getConnection);
+		};
+
+		Because of = () =>
+		{
+			results = (from record in (object)db.Table
+					   select record.Value.To<int?>()).Cast<int?>().ToList();
+		};
+
+		It should_retrieve_3_records = () =>
+			results.Count.ShouldEqual(3);
+	}
+
 	public class When_selecting_an_expression_without_a_supplied_name
 	{
 		private static dynamic db;

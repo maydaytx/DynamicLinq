@@ -288,4 +288,45 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 		It should_retrieve_1_records = () =>
 			results.Count.ShouldEqual(1);
 	}
+
+	public class When_comparing_a_date_time
+	{
+		private static dynamic db;
+		private static IList<long> results;
+
+		public enum Status
+		{
+			SomeStatus1 = 1,
+			SomeStatus2 = 2,
+			SomeStatus3 = 3
+		}
+
+		Establish context = () =>
+		{
+			var getConnection = SQLite.CreateInMemoryDatabase
+				(
+@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name], [Date] DATETIME);
+
+INSERT INTO [Table] ([Id], [Name], [Date]) VALUES (1, 'Sal', '2012-12-21');
+INSERT INTO [Table] ([Id], [Name], [Date]) VALUES (2, 'Bob', '2001-09-11');
+INSERT INTO [Table] ([Id], [Name], [Date]) VALUES (3, 'Joe', '1776-07-04');
+INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
+				);
+
+			db = new DB(getConnection);
+		};
+
+		private Because of = () =>
+		{
+			results = (from record in (object)db.Table
+					   where record.Date > DateTime.Now
+					   select record.Id).Cast<long>().ToList();
+		};
+
+		It should_retrieve_the_records = () =>
+			results[0].ShouldEqual(1L);
+
+		It should_retrieve_1_records = () =>
+			results.Count.ShouldEqual(1);
+	}
 }

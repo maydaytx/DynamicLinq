@@ -142,6 +142,7 @@ INSERT INTO [Table] ([Id], [Name], [Time]) VALUES (2, 'Name2', '2001-09-11');"
 		private static dynamic db;
 		private static dynamic deserializedResult1;
 		private static dynamic deserializedResult2;
+		private static dynamic deserializedResult3;
 
 		Establish context = () =>
 		{
@@ -149,8 +150,9 @@ INSERT INTO [Table] ([Id], [Name], [Time]) VALUES (2, 'Name2', '2001-09-11');"
 			(
 @"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name], [Value]);
 
-INSERT INTO [Table] ([Id], [Name], [Value]) VALUES (1, 'Name1', 1);
-INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Name2');"
+INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
+INSERT INTO [Table] ([Id], [Name], [Value]) VALUES (2, 'Name2', 1);
+INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 			);
 
 			db = new DB(getConnection);
@@ -167,17 +169,23 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Name2');"
 
 			deserializedResult1 = deserializedResults[0];
 			deserializedResult2 = deserializedResults[1];
+			deserializedResult3 = deserializedResults[2];
 		};
 
 		It should_create_a_duck_type_with_the_same_properties = () =>
 		{
 			((object)deserializedResult1.Name).ShouldEqual("Name1");
-			((object)deserializedResult1.Value).ShouldEqual(1L);
+			((object)deserializedResult1.Value).ShouldEqual(null);
 			((object)deserializedResult2.Name).ShouldEqual("Name2");
-			((object)deserializedResult2.Value).ShouldEqual(null);
+			((object)deserializedResult2.Value).ShouldEqual(1L);
+			((object)deserializedResult3.Name).ShouldEqual("Name3");
+			((object)deserializedResult3.Value).ShouldEqual(null);
 		};
 
 		It should_be_the_same_type = () =>
+		{
 			((object)deserializedResult1).ShouldBeOfType(((object)deserializedResult2).GetType());
+			((object)deserializedResult1).ShouldBeOfType(((object)deserializedResult3).GetType());
+		};
 	}
 }

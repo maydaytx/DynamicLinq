@@ -27,9 +27,13 @@ namespace DynamicLinq.ClauseItems
 
 				return new AwesomeStringBuilder(parameterName);
 			}
-			else if (@object is char || @object is DateTime)
+			else if (@object is char)
 			{
 				return new AwesomeStringBuilder("'" + @object + "'");
+			}
+			else if (@object is DateTime)
+			{
+				return new AwesomeStringBuilder("'" + ((DateTime) @object).ToString("yyyy-MM-dd HH:mm:ss.fffffff") + "'");
 			}
 			else
 			{
