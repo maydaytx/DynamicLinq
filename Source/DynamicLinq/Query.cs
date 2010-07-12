@@ -99,23 +99,22 @@ namespace DynamicLinq
 										value = Convert(value, dataType);
 								}
 
-								if (value == null)
-								{
-									Type currentDataType;
+								Type currentDataType;
 
-									if (dataTypes.TryGetValue(name, out currentDataType))
+								if (dataTypes.TryGetValue(name, out currentDataType))
+								{
+									if (value == null)
 									{
 										if (currentDataType.IsValueType && !IsNullable(currentDataType))
-											dataType = typeof (Nullable<>).MakeGenericType(currentDataType);
+											dataTypes[name] = typeof (Nullable<>).MakeGenericType(currentDataType);
 										else if (dataType.IsValueType && !IsNullable(dataType))
-											dataType = typeof (Nullable<>).MakeGenericType(dataType);
+											dataTypes[name] = typeof (Nullable<>).MakeGenericType(dataType);
 									}
 								}
-
-								if (dataTypes.ContainsKey(name))
-									dataTypes[name] = dataType;
 								else
+								{
 									dataTypes.Add(name, dataType);
+								}
 
 								row[i] = new Tuple<string, object>(name, value);
 							}

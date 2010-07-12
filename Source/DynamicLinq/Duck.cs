@@ -44,6 +44,21 @@ namespace DynamicLinq
 				info.AddValue(property.Key, property.Value);
 		}
 
+		private static object Deserialize(SerializationInfo info)
+		{
+			string typeId = info.GetString(TypeIdSerializationName);
+
+			Type duckType = DuckRepository.GenerateDuckType(typeId);
+
+			IList<Tuple<string, Type, object>> serializationInfo = new List<Tuple<string, Type, object>>();
+
+			foreach (SerializationEntry serializationEntry in info)
+				if (serializationEntry.Name != TypeIdSerializationName)
+					serializationInfo.Add(new Tuple<string, Type, object>(serializationEntry.Name, serializationEntry.ObjectType, serializationEntry.Value));
+
+			return DuckRepository.CreateDuck(duckType, serializationInfo);
+		}
+
 		public static void Configure(IFormatter formatter)
 		{
 			BinderAndSurrogate binderAndSurrogate = new BinderAndSurrogate();
@@ -75,17 +90,7 @@ namespace DynamicLinq
 
 			public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
 			{
-				string typeId = info.GetString(TypeIdSerializationName);
-
-				Type duckType = DuckRepository.GenerateDuckType(typeId);
-
-				IList<Tuple<string, Type, object>> serializationInfo = new List<Tuple<string, Type, object>>();
-
-				foreach (SerializationEntry serializationEntry in info)
-					if (serializationEntry.Name != TypeIdSerializationName)
-						serializationInfo.Add(new Tuple<string, Type, object>(serializationEntry.Name, serializationEntry.ObjectType, serializationEntry.Value));
-
-				return DuckRepository.CreateDuck(duckType, serializationInfo);
+				return Deserialize(info);
 			}
 		}
 	}
