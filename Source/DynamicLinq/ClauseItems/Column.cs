@@ -17,9 +17,9 @@ namespace DynamicLinq.ClauseItems
 			this.name = name;
 		}
 
-		internal override LinkedStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
+		internal override LinkedListStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
 		{
-			return new LinkedStringBuilder("[" + name + "]");
+			return new LinkedListStringBuilder("[" + name + "]");
 		}
 	}
 }

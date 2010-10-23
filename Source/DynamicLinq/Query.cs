@@ -174,7 +174,7 @@ namespace DynamicLinq
 
 		private string BuildSQL(IList<Tuple<string, object>> parameters, IDictionary<string, Type> conversions)
 		{
-			LinkedStringBuilder sql = new LinkedStringBuilder("SELECT ");
+			LinkedListStringBuilder sql = new LinkedListStringBuilder("SELECT ");
 			bool notFirst = false;
 
 			if (selectClauseItems == null || selectClauseItems.Count == 0)

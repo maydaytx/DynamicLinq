@@ -7,7 +7,7 @@ namespace DynamicLinq.ClauseItems
 	{
 		internal ClauseItem() { }
 
-		internal abstract LinkedStringBuilder BuildClause(IList<Tuple<string, object>> parameters);
+		internal abstract LinkedListStringBuilder BuildClause(IList<Tuple<string, object>> parameters);
 
 		#region implicit conversions
 
