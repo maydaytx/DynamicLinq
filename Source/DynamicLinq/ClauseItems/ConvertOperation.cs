@@ -24,7 +24,7 @@ namespace DynamicLinq.ClauseItems
 			this.type = type;
 		}
 
-		internal override AwesomeStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
+		internal override LinkedStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
 		{
 			throw new NotSupportedException("Conversions should only occur in selects");
 		}

@@ -16,7 +16,7 @@ namespace DynamicLinq.ClauseItems
 			this.rightItem = rightItem;
 		}
 
-		internal override AwesomeStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
+		internal override LinkedStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
 		{
 			string operatorString;
 
@@ -48,7 +48,7 @@ namespace DynamicLinq.ClauseItems
 					break;
 				case BinaryOperator.Equal:
 					if (ReferenceEquals(leftItem, null) && ReferenceEquals(rightItem, null))
-						return new AwesomeStringBuilder("(TRUE)");
+						return new LinkedStringBuilder("(TRUE)");
 					else if (ReferenceEquals(leftItem, null))
 						return "(" + rightItem.BuildClause(parameters) + "IS NULL)";
 					else if (ReferenceEquals(rightItem, null))
@@ -58,7 +58,7 @@ namespace DynamicLinq.ClauseItems
 					break;
 				case BinaryOperator.NotEqual:
 					if (ReferenceEquals(leftItem, null) && ReferenceEquals(rightItem, null))
-						return new AwesomeStringBuilder("(FALSE)");
+						return new LinkedStringBuilder("(FALSE)");
 					else if (ReferenceEquals(leftItem, null))
 						return "(" + rightItem.BuildClause(parameters) + "IS NOT NULL)";
 					else if (ReferenceEquals(rightItem, null))

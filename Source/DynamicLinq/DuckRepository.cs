@@ -92,7 +92,7 @@ namespace DynamicLinq
 
 		internal static Type GenerateDuckType(IEnumerable<Tuple<string, Type>> properties)
 		{
-			AwesomeStringBuilder sb = new AwesomeStringBuilder();
+			LinkedStringBuilder sb = new LinkedStringBuilder();
 
 			string typeId = Enumerable.Aggregate(Enumerable.OrderBy(properties, p => p.Item1), sb, (current, property) => current + (property.Item1 + '|' + property.Item2.AssemblyQualifiedName + '|')).ToString();
 

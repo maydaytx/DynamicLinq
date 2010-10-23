@@ -2,21 +2,21 @@
 
 namespace DynamicLinq
 {
-	internal class AwesomeStringBuilder
+	internal class LinkedStringBuilder
 	{
 		private int count;
 		private Node<string> first;
 		private Node<string> last;
 
-		internal AwesomeStringBuilder(string str)
+		internal LinkedStringBuilder(string str)
 		{
 			count = 1;
 			first = last = new Node<string>(str);
 		}
 
-		internal AwesomeStringBuilder() { }
+		internal LinkedStringBuilder() { }
 
-		public static AwesomeStringBuilder operator +(AwesomeStringBuilder x, AwesomeStringBuilder y)
+		public static LinkedStringBuilder operator +(LinkedStringBuilder x, LinkedStringBuilder y)
 		{
 			if (x.last == null)
 			{
@@ -38,7 +38,7 @@ namespace DynamicLinq
 			}
 		}
 
-		public static AwesomeStringBuilder operator +(string x, AwesomeStringBuilder y)
+		public static LinkedStringBuilder operator +(string x, LinkedStringBuilder y)
 		{
 			++y.count;
 			Node<string> node = new Node<string>(x);
@@ -56,7 +56,7 @@ namespace DynamicLinq
 			return y;
 		}
 
-		public static AwesomeStringBuilder operator +(AwesomeStringBuilder x, string y)
+		public static LinkedStringBuilder operator +(LinkedStringBuilder x, string y)
 		{
 			++x.count;
 			Node<string> node = new Node<string>(y);

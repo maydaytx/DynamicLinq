@@ -17,7 +17,7 @@ namespace DynamicLinq.ClauseItems
 			this.@object = @object;
 		}
 
-		internal override AwesomeStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
+		internal override LinkedStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
 		{
 			if (@object is string)
 			{
@@ -25,19 +25,19 @@ namespace DynamicLinq.ClauseItems
 
 				parameters.Add(new Tuple<string, object>(parameterName, @object));
 
-				return new AwesomeStringBuilder(parameterName);
+				return new LinkedStringBuilder(parameterName);
 			}
 			else if (@object is char)
 			{
-				return new AwesomeStringBuilder("'" + @object + "'");
+				return new LinkedStringBuilder("'" + @object + "'");
 			}
 			else if (@object is DateTime)
 			{
-				return new AwesomeStringBuilder("'" + ((DateTime) @object).ToString("yyyy-MM-dd HH:mm:ss.fffffff") + "'");
+				return new LinkedStringBuilder("'" + ((DateTime) @object).ToString("yyyy-MM-dd HH:mm:ss.fffffff") + "'");
 			}
 			else
 			{
-				return new AwesomeStringBuilder(@object.ToString());
+				return new LinkedStringBuilder(@object.ToString());
 			}
 		}
 	}

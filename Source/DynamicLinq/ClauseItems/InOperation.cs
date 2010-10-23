@@ -14,9 +14,9 @@ namespace DynamicLinq.ClauseItems
 			this.list = list;
 		}
 
-		internal override AwesomeStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
+		internal override LinkedStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
 		{
-			AwesomeStringBuilder clause = item.BuildClause(parameters) + " IN (";
+			LinkedStringBuilder clause = item.BuildClause(parameters) + " IN (";
 			bool first = true;
 
 			foreach (ClauseItem clauseItem in list)
