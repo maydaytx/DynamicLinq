@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Runtime.Serialization;
 using DynamicLinq.ClauseItems;
+using DynamicLinq.DuckTyping;
 
 namespace DynamicLinq
 {

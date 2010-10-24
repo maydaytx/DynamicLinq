@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 using System.Runtime.Serialization;
 using System.Threading;
 
-namespace DynamicLinq
+namespace DynamicLinq.DuckTyping
 {
 	public static class DuckRepository
 	{

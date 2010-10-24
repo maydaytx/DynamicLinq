@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using DynamicLinq.DuckTyping;
 using Machine.Specifications;
 
 namespace DynamicLinq.Specs

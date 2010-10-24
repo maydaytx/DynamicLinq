@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace DynamicLinq
+namespace DynamicLinq.DuckTyping
 {
 	[Serializable]
 	public abstract class Duck

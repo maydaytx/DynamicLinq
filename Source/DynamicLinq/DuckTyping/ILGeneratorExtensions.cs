@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace DynamicLinq
+namespace DynamicLinq.DuckTyping
 {
 	internal static class ILGeneratorExtensions
 	{
