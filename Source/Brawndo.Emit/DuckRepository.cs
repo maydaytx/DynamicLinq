@@ -46,7 +46,7 @@ namespace Brawndo.Emit
 			}
 
 			if (type == null)
-				type = GenerateDuckType(Enumerable.Select(properties, p => new Tuple<string, Type>(p.Item1, p.Item2)));
+				type = GenerateDuckType(properties.Select(p => new Tuple<string, Type>(p.Item1, p.Item2)));
 
 			return CreateDuck(type, properties);
 		}
@@ -94,7 +94,7 @@ namespace Brawndo.Emit
 		{
 			LinkedListStringBuilder sb = new LinkedListStringBuilder();
 
-			string typeId = Enumerable.Aggregate(Enumerable.OrderBy(properties, p => p.Item1), sb, (current, property) => current + (property.Item1 + '|' + property.Item2.AssemblyQualifiedName + '|')).ToString();
+			string typeId = properties.OrderBy(p => p.Item1).Aggregate(sb, (current, property) => current + (property.Item1 + '|' + property.Item2.AssemblyQualifiedName + '|')).ToString();
 
 			return GenerateDuckType(typeId, properties);
 		}
@@ -228,7 +228,7 @@ namespace Brawndo.Emit
 
 		private static MethodBuilder DefineMethodSignature(TypeBuilder tb, string methodName, Type returnType, IEnumerable<ParameterInfo> parameters)
 		{
-			Type[] parameterTypes = Enumerable.Select(parameters, p => p.ParameterType).ToArray();
+			Type[] parameterTypes = parameters.Select(p => p.ParameterType).ToArray();
 
 			MethodBuilder mb = tb.DefineMethod(methodName, MethodAttributes.Public | MethodAttributes.Virtual, returnType, parameterTypes);
 
