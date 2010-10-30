@@ -4,15 +4,13 @@ using Brawndo.DynamicLinq.Dialect;
 
 namespace Brawndo.DynamicLinq.ClauseItems
 {
-	public class BinaryOperation : ClauseItem
+	public class ConcatenationOperation : ClauseItem
 	{
-		private readonly SimpleOperator @operator;
 		private readonly ClauseItem leftItem;
 		private readonly ClauseItem rightItem;
 
-		internal BinaryOperation(SimpleOperator @operator, ClauseItem leftItem, ClauseItem rightItem)
+		internal ConcatenationOperation(ClauseItem leftItem, ClauseItem rightItem)
 		{
-			this.@operator = @operator;
 			this.leftItem = leftItem;
 			this.rightItem = rightItem;
 		}
@@ -21,10 +19,7 @@ namespace Brawndo.DynamicLinq.ClauseItems
 		{
 			LinkedListStringBuilder builder = leftItem.BuildClause(dialect, parameters);
 
-			builder.Append(" ");
-			builder.Append(@operator.GetOperator(dialect));
-			builder.Append(" ");
-			builder.Append(rightItem.BuildClause(dialect, parameters));
+			dialect.ConcatenateStrings(builder, rightItem.BuildClause(dialect, parameters));
 
 			return builder;
 		}

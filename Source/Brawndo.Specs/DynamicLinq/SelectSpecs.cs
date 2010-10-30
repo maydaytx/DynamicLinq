@@ -12,16 +12,14 @@ namespace Brawndo.DynamicLinq
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name]);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256));
 
 INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
 INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Name2');
 INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
@@ -48,16 +46,14 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name]);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256));
 
 INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
 INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Name2');
 INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
@@ -73,26 +69,24 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 	public class When_selecting_and_explicitly_converting_a_single_column
 	{
 		private static dynamic db;
-		private static IList<int> results;
+		private static IList<long> results;
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name]);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256));
 
 INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
 INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Name2');
 INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
 		{
 			results = (from record in (object)db.Table
-					   select record.Id.To<int>()).Cast<int>().ToList();
+					   select record.Id.To<long>()).Cast<long>().ToList();
 		};
 
 		It should_retrieve_3_records = () =>
@@ -106,16 +100,14 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Value]);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Value] INTEGER);
 
 INSERT INTO [Table] ([Id]) VALUES (1);
 INSERT INTO [Table] ([Id], [Value]) VALUES (2, 1);
 INSERT INTO [Table] ([Id]) VALUES (3);"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
@@ -142,16 +134,14 @@ INSERT INTO [Table] ([Id]) VALUES (3);"
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [FirstName], [LastName]);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [FirstName] VARCHAR(256), [LastName] VARCHAR(256));
 
 INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (1, 'First1', 'Last1');
 INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (2, 'First2', 'Last2');
 INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3');"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
@@ -178,16 +168,14 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3'
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name]);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256));
 
 INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
 INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Name2');
 INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
@@ -198,11 +186,11 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 
 		It should_retrieve_the_records = () =>
 		{
-			((object)results[0].Id).ShouldEqual(1L);
+			((object)results[0].Id).ShouldEqual(1);
 			((object)results[0].Name).ShouldEqual("Name1");
-			((object)results[1].Id).ShouldEqual(2L);
+			((object)results[1].Id).ShouldEqual(2);
 			((object)results[1].Name).ShouldEqual("Name2");
-			((object)results[2].Id).ShouldEqual(3L);
+			((object)results[2].Id).ShouldEqual(3);
 			((object)results[2].Name).ShouldEqual("Name3");
 		};
 
@@ -220,16 +208,14 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [FirstName], [LastName]);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [FirstName] VARCHAR(256), [LastName] VARCHAR(256));
 
 INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (1, 'First1', 'Last1');
 INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (2, 'First2', 'Last2');
 INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3');"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
@@ -240,11 +226,11 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3'
 
 		It should_retrieve_the_records = () =>
 		{
-			((object)results[0].Id).ShouldEqual(1L);
+			((object)results[0].Id).ShouldEqual(1);
 			((object)results[0].FirstName).ShouldEqual("First1");
-			((object)results[1].Id).ShouldEqual(2L);
+			((object)results[1].Id).ShouldEqual(2);
 			((object)results[1].FirstName).ShouldEqual("First2");
-			((object)results[2].Id).ShouldEqual(3L);
+			((object)results[2].Id).ShouldEqual(3);
 			((object)results[2].FirstName).ShouldEqual("First3");
 		};
 
@@ -262,16 +248,14 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3'
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Value], [Name]);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Value] INTEGER, [Name] VARCHAR(256));
 
 INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
 INSERT INTO [Table] ([Id], [Value], [Name]) VALUES (2, 1, 'Name2');
 INSERT INTO [Table] ([Id], [Value], [Name]) VALUES (3, 3, 'Name3');"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
@@ -282,14 +266,14 @@ INSERT INTO [Table] ([Id], [Value], [Name]) VALUES (3, 3, 'Name3');"
 
 		It should_retrieve_the_records = () =>
 		{
-			((object)results[0].Id).ShouldEqual(1L);
+			((object)results[0].Id).ShouldEqual(1);
 			((object)results[0].Value).ShouldEqual(null);
 			((object)results[0].Name).ShouldEqual("Name1");
-			((object)results[1].Id).ShouldEqual(2L);
-			((object)results[1].Value).ShouldEqual(1L);
+			((object)results[1].Id).ShouldEqual(2);
+			((object)results[1].Value).ShouldEqual(1);
 			((object)results[1].Name).ShouldEqual("Name2");
-			((object)results[2].Id).ShouldEqual(3L);
-			((object)results[2].Value).ShouldEqual(3L);
+			((object)results[2].Id).ShouldEqual(3);
+			((object)results[2].Value).ShouldEqual(3);
 			((object)results[2].Name).ShouldEqual("Name3");
 		};
 
@@ -311,16 +295,14 @@ INSERT INTO [Table] ([Id], [Value], [Name]) VALUES (3, 3, 'Name3');"
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name], [Status]);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256), [Status] INTEGER);
 
 INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (1, 'Name1', 1);
 INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (2, 'Name2', 2);
 INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (3, 'Name3', 3);"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
@@ -331,11 +313,11 @@ INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (3, 'Name3', 3);"
 
 		It should_retrieve_the_records = () =>
 		{
-			((object)results[0].Id).ShouldEqual(1L);
+			((object)results[0].Id).ShouldEqual(1);
 			((object)results[0].Status).ShouldEqual(Status.SomeStatus1);
-			((object)results[1].Id).ShouldEqual(2L);
+			((object)results[1].Id).ShouldEqual(2);
 			((object)results[1].Status).ShouldEqual(Status.SomeStatus2);
-			((object)results[2].Id).ShouldEqual(3L);
+			((object)results[2].Id).ShouldEqual(3);
 			((object)results[2].Status).ShouldEqual(Status.SomeStatus3);
 		};
 
@@ -353,16 +335,14 @@ INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (3, 'Name3', 3);"
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [FirstName], [LastName]);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [FirstName] VARCHAR(256), [LastName] VARCHAR(256));
 
 INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (1, 'First1', 'Last1');
 INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (2, 'First2', 'Last2');
 INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3');"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
@@ -395,14 +375,12 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3'
 		{
 			bytes = new byte[] { 0xDE, 0xAD, 0xBE, 0xEF };
 
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Data]);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Data] VARBINARY(256));
 
 INSERT INTO [Table] ([Id], [Data]) VALUES (1, @p0);"
 			, new Tuple<string, object>("@p0", bytes));
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>

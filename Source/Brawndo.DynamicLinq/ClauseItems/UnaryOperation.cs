@@ -1,42 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using Brawndo.DynamicLinq.Dialect;
 
 namespace Brawndo.DynamicLinq.ClauseItems
 {
 	public class UnaryOperation : ClauseItem
 	{
-		private readonly UnaryOperator @operator;
+		private readonly SimpleOperator @operator;
 		private readonly ClauseItem item;
 
-		internal UnaryOperation(UnaryOperator @operator, ClauseItem item)
+		internal UnaryOperation(SimpleOperator @operator, ClauseItem item)
 		{
 			this.@operator = @operator;
 			this.item = item;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
+		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters)
 		{
-			string operation;
+			LinkedListStringBuilder builder = item.BuildClause(dialect, parameters);
 
-			switch (@operator)
-			{
-				case UnaryOperator.Positive:
-					operation = "+";
-					break;
-				case UnaryOperator.Negative:
-					operation = "-";
-					break;
-				case UnaryOperator.Not:
-					operation = "NOT ";
-					break;
-				case UnaryOperator.Complement:
-					operation = "~";
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
+			builder.Prepend(@operator.GetOperator(dialect));
 
-			return operation + item.BuildClause(parameters);
+			return builder;
 		}
 	}
 }

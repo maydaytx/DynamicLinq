@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="DynamicLinq\SelectSpecs.cs" />
     <Compile Include="DynamicLinq\SQLite.cs" />
+    <Compile Include="DynamicLinq\SQLServer.cs" />
     <Compile Include="DynamicLinq\WhereSpecs.cs" />
     <Compile Include="Emit\SerializationSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

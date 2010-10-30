@@ -45,7 +45,7 @@ namespace Brawndo.DynamicLinq
 			if (ReferenceEquals(whereClause, null))
 				whereClause = clauseItem;
 			else
-				whereClause = new BinaryOperation(BinaryOperator.And, whereClause, clauseItem);
+				whereClause = new BinaryOperation(SimpleOperator.And, whereClause, clauseItem);
 		}
 
 		private void Execute()
@@ -183,13 +183,13 @@ namespace Brawndo.DynamicLinq
 
 			if (selectClauseItems == null || selectClauseItems.Count == 0)
 			{
-				sql += "*";
+				sql.Append("*");
 			}
 			else if (!needsDuck)
 			{
 				ClauseItem item = CheckForConversion(selectClauseItems[0], conversions);
 
-				sql += item.BuildClause(parameters);
+				sql.Append(item.BuildClause(db.Dialect, parameters));
 			}
 			else
 			{
@@ -202,14 +202,18 @@ namespace Brawndo.DynamicLinq
 
 					ClauseItem item = CheckForConversion(property, conversions);
 
-					sql += item.BuildClause(parameters) + " AS [" + property.Item1 + "]";
+					sql.Append(item.BuildClause(db.Dialect, parameters));
+					sql.Append(" AS [" + property.Item1 + "]");
 				}
 			}
 
-			sql += " FROM [" + tableName + "]";
+			sql.Append(" FROM [" + tableName + "]");
 
 			if (!ReferenceEquals(whereClause, null))
-				sql += " WHERE " + whereClause.BuildClause(parameters);
+			{
+				sql.Append(" WHERE ");
+				sql.Append(whereClause.BuildClause(db.Dialect, parameters));
+			}
 
 			return sql.ToString();
 		}

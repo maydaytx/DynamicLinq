@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Brawndo.DynamicLinq.Dialect;
 
 namespace Brawndo.DynamicLinq.ClauseItems
 {
@@ -7,7 +8,7 @@ namespace Brawndo.DynamicLinq.ClauseItems
 	{
 		internal ClauseItem() { }
 
-		internal abstract LinkedListStringBuilder BuildClause(IList<Tuple<string, object>> parameters);
+		internal abstract LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters);
 
 		#region implicit conversions
 
@@ -93,22 +94,22 @@ namespace Brawndo.DynamicLinq.ClauseItems
 		//+, -, !, ~, ++, --, true, false
 		public static ClauseItem operator +(ClauseItem x)
 		{
-			return new UnaryOperation(UnaryOperator.Positive, x);
+			return new UnaryOperation(SimpleOperator.Positive, x);
 		}
 
 		public static ClauseItem operator -(ClauseItem x)
 		{
-			return new UnaryOperation(UnaryOperator.Negative, x);
+			return new UnaryOperation(SimpleOperator.Negative, x);
 		}
 
 		public static ClauseItem operator !(ClauseItem x)
 		{
-			return new UnaryOperation(UnaryOperator.Not, x);
+			return new UnaryOperation(SimpleOperator.Not, x);
 		}
 
 		public static ClauseItem operator ~(ClauseItem x)
 		{
-			return new UnaryOperation(UnaryOperator.Complement, x);
+			return new UnaryOperation(SimpleOperator.Complement, x);
 		}
 
 		public static ClauseItem operator ++(ClauseItem x)
@@ -138,37 +139,40 @@ namespace Brawndo.DynamicLinq.ClauseItems
 		//+, -, *, /, %, &, |, ^, <<, >>
 		public static ClauseItem operator +(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.Add, x, y);
+			if (EvaluatesToString(x) || EvaluatesToString(y))
+				return new ConcatenationOperation(x, y);
+			else
+				return new BinaryOperation(SimpleOperator.Add, x, y);
 		}
 
 		public static ClauseItem operator -(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.Subtract, x, y);
+			return new BinaryOperation(SimpleOperator.Subtract, x, y);
 		}
 
 		public static ClauseItem operator *(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.Multiply, x, y);
+			return new BinaryOperation(SimpleOperator.Multiply, x, y);
 		}
 
 		public static ClauseItem operator /(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.Divide, x, y);
+			return new BinaryOperation(SimpleOperator.Divide, x, y);
 		}
 
 		public static ClauseItem operator %(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.Mod, x, y);
+			return new BinaryOperation(SimpleOperator.Mod, x, y);
 		}
 
 		public static ClauseItem operator &(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.And, x, y);
+			return new BinaryOperation(SimpleOperator.And, x, y);
 		}
 
 		public static ClauseItem operator |(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.Or, x, y);
+			return new BinaryOperation(SimpleOperator.Or, x, y);
 		}
 
 		public static ClauseItem operator ^(ClauseItem x, ClauseItem y)
@@ -189,37 +193,47 @@ namespace Brawndo.DynamicLinq.ClauseItems
 		//==, !=, <, >, <=, >=
 		public static ClauseItem operator ==(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.Equal, x, y);
+			if (ReferenceEquals(x, null))
+				return new NullComparisonOperation(true, y);
+			else if (ReferenceEquals(y, null))
+				return new NullComparisonOperation(true, x);
+			else
+				return new BinaryOperation(SimpleOperator.Equal, x, y);
 		}
 
 		public static ClauseItem operator !=(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.NotEqual, x, y);
+			if (ReferenceEquals(x, null))
+				return new NullComparisonOperation(false, y);
+			else if (ReferenceEquals(y, null))
+				return new NullComparisonOperation(false, x);
+			else
+				return new BinaryOperation(SimpleOperator.NotEqual, x, y);
 		}
 
 		public static ClauseItem operator <(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.LessThan, x, y);
+			return new BinaryOperation(SimpleOperator.LessThan, x, y);
 		}
 
 		public static ClauseItem operator >(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.GreaterThan, x, y);
+			return new BinaryOperation(SimpleOperator.GreaterThan, x, y);
 		}
 
 		public static ClauseItem operator <=(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.LessThanOrEqual, x, y);
+			return new BinaryOperation(SimpleOperator.LessThanOrEqual, x, y);
 		}
 
 		public static ClauseItem operator >=(ClauseItem x, ClauseItem y)
 		{
-			return new BinaryOperation(BinaryOperator.GreaterThanOrEqual, x, y);
+			return new BinaryOperation(SimpleOperator.GreaterThanOrEqual, x, y);
 		}
 
 		public ClauseItem Like(ClauseItem clauseItem)
 		{
-			return new BinaryOperation(BinaryOperator.Like, this, clauseItem);
+			return new BinaryOperation(SimpleOperator.Like, this, clauseItem);
 		}
 
 		#endregion
@@ -247,6 +261,11 @@ namespace Brawndo.DynamicLinq.ClauseItems
 		public override int GetHashCode()
 		{
 			throw new NotSupportedException();
+		}
+
+		private static bool EvaluatesToString(ClauseItem clauseItem)
+		{
+			return (clauseItem is Constant && ((Constant) clauseItem).Object is string) || clauseItem is ConcatenationOperation;
 		}
 	}
 }

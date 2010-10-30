@@ -1,26 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Brawndo.DynamicLinq.Dialect;
 
 namespace Brawndo.DynamicLinq.ClauseItems
 {
-	public class InOperation : ClauseItem
+	public class NullComparisonOperation : ClauseItem
 	{
+		private readonly bool compareEqualToNull;
 		private readonly ClauseItem item;
-		private readonly IEnumerable<ClauseItem> list;
 
-		internal InOperation(ClauseItem item, IEnumerable<ClauseItem> list)
+		internal NullComparisonOperation(bool compareEqualToNull, ClauseItem item)
 		{
+			this.compareEqualToNull = compareEqualToNull;
 			this.item = item;
-			this.list = list;
 		}
 
 		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters)
 		{
 			LinkedListStringBuilder builder = item.BuildClause(dialect, parameters);
 
-			dialect.InOperator(builder, Enumerable.Select(list, listItem => listItem.BuildClause(dialect, parameters)));
+			if (compareEqualToNull)
+				dialect.CompareEqualToNull(builder);
+			else
+				dialect.CompareNotEqualToNull(builder);
 
 			return builder;
 		}

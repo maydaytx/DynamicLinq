@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Brawndo.DynamicLinq.Dialect;
 
 namespace Brawndo.DynamicLinq.ClauseItems
 {
@@ -17,7 +18,7 @@ namespace Brawndo.DynamicLinq.ClauseItems
 			this.name = name;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
+		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters)
 		{
 			return "[" + name + "]";
 		}

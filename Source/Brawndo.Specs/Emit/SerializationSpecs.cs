@@ -60,21 +60,19 @@ namespace Brawndo.Emit
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name], [Time] DATETIME);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256), [Time] DATETIME);
 
 INSERT INTO [Table] ([Id], [Name], [Time]) VALUES (1, 'Name1', '2012-12-21');
 INSERT INTO [Table] ([Id], [Name], [Time]) VALUES (2, 'Name2', '2001-09-11');"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
 		{
 			IList<object> results = (from record in (object) db.Table
-			                         select new {record.Name, record.Time}).ToList();
+									 select new {record.Name, record.Time}).ToList();
 
 			result1 = results[0];
 			result2 = results[1];
@@ -107,21 +105,19 @@ INSERT INTO [Table] ([Id], [Name], [Time]) VALUES (2, 'Name2', '2001-09-11');"
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name], [Time] DATETIME);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256), [Time] DATETIME);
 
 INSERT INTO [Table] ([Id], [Name], [Time]) VALUES (1, 'Name1', '2012-12-21');
 INSERT INTO [Table] ([Id], [Name], [Time]) VALUES (2, 'Name2', '2001-09-11');"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
 		{
 			IEnumerable<object> results = (from record in (object) db.Table
-			                               select new {record.Name, record.Time});
+										   select new {record.Name, record.Time});
 
 			IList<object> deserializedResults = results.Serialize().Deserialize<IEnumerable<object>>().ToList();
 
@@ -147,22 +143,20 @@ INSERT INTO [Table] ([Id], [Name], [Time]) VALUES (2, 'Name2', '2001-09-11');"
 
 		Establish context = () =>
 		{
-			var getConnection = SQLite.CreateInMemoryDatabase
+			db = SQLite.GetDB
 			(
-@"CREATE TABLE [Table] ([Id] PRIMARY KEY, [Name], [Value]);
+@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256), [Value] INTEGER);
 
 INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
 INSERT INTO [Table] ([Id], [Name], [Value]) VALUES (2, 'Name2', 1);
 INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 			);
-
-			db = new DB(getConnection);
 		};
 
 		Because of = () =>
 		{
 			byte[] serializedResults = (from record in (object) db.Table
-			                            select new {record.Name, record.Value}).ToList().Serialize();
+										select new {record.Name, record.Value}).ToList().Serialize();
 
 			DuckRepository.ResetCache();
 
@@ -178,7 +172,7 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 			((object)deserializedResult1.Name).ShouldEqual("Name1");
 			((object)deserializedResult1.Value).ShouldEqual(null);
 			((object)deserializedResult2.Name).ShouldEqual("Name2");
-			((object)deserializedResult2.Value).ShouldEqual(1L);
+			((object)deserializedResult2.Value).ShouldEqual(1);
 			((object)deserializedResult3.Name).ShouldEqual("Name3");
 			((object)deserializedResult3.Value).ShouldEqual(null);
 		};

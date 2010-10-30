@@ -1,21 +1,34 @@
 ﻿using System;
 using System.Data;
-using System.Data.SQLite;
+using System.Data.SqlClient;
 using Brawndo.DynamicLinq.Dialect;
 
 namespace Brawndo.DynamicLinq
 {
-	internal static class SQLite
+	internal static class SQLServer
 	{
 		public static DB GetDB(string sql, params Tuple<string, object>[] parameters)
 		{
 			Func<IDbConnection> getConnection = () =>
 			{
-				SQLiteConnection connection = new SQLiteConnection("Data source=:memory:");
+				SqlConnection connection = new SqlConnection("server=localhost\\sqlexpress;database=Test;Integrated Security=true;");
 
 				connection.Open();
 
-				using (SQLiteCommand command = connection.CreateCommand())
+				using (SqlCommand command = connection.CreateCommand())
+				{
+					command.CommandText = "DROP TABLE [Table]";
+
+					try
+					{
+						command.ExecuteNonQuery();
+					}
+					catch
+					{
+					}
+				}
+
+				using (SqlCommand command = connection.CreateCommand())
 				{
 					command.CommandText = sql;
 
@@ -35,7 +48,7 @@ namespace Brawndo.DynamicLinq
 				return connection;
 			};
 
-			return new DB(getConnection, new SQLiteDialect());
+			return new DB(getConnection, new SQLServerDialect());
 		}
 	}
 }

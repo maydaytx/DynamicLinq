@@ -2,76 +2,61 @@
 
 namespace Brawndo
 {
-	internal class LinkedListStringBuilder
+	public class LinkedListStringBuilder
 	{
-		private int count;
 		private Node first;
 		private Node last;
+		private int count;
 
-		internal LinkedListStringBuilder(string str)
+		public LinkedListStringBuilder(string value)
 		{
 			count = 1;
-			first = last = new Node(str);
+			first = last = value;
 		}
 
-		internal LinkedListStringBuilder() { }
+		public LinkedListStringBuilder() { }
 
-		public static LinkedListStringBuilder operator +(LinkedListStringBuilder x, LinkedListStringBuilder y)
+		public void Append(LinkedListStringBuilder list)
 		{
-			if (x.last == null)
+			if (count > 0)
+				last.Next = list.first;
+			else
+				first = list.first;
+
+			count += list.count;
+			last = list.last;
+		}
+
+		public void Append(string value)
+		{
+			++count;
+			Node node = value;
+
+			if (last == null)
 			{
-				return y;
-			}
-			else if (y.first == null)
-			{
-				return x;
+				first = last = node;
 			}
 			else
 			{
-				x.last.next = y.first;
-				x.count += y.count;
-				x.last = y.last;
-				y.count = x.count;
-				y.first = x.first;
-
-				return x;
+				last.Next = node;
+				last = node;
 			}
 		}
 
-		public static LinkedListStringBuilder operator +(string x, LinkedListStringBuilder y)
+		public void Prepend(string value)
 		{
-			++y.count;
-			Node node = new Node(x);
+			++count;
+			Node node = value;
 
-			if (y.first == null)
+			if (first == null)
 			{
-				y.first = y.last = node;
+				first = last = node;
 			}
 			else
 			{
-				node.next = y.first;
-				y.first = node;
+				node.Next = first;
+				first = node;
 			}
-
-			return y;
-		}
-
-		public static LinkedListStringBuilder operator +(LinkedListStringBuilder x, string y)
-		{
-			++x.count;
-			Node node = new Node(y);
-
-			if (x.last == null)
-			{
-				x.first = x.last = node;
-			}
-			else
-			{
-				x.last.next = node;
-				x.last = node;
-			}
-
-			return x;
 		}
 
 		public static implicit operator LinkedListStringBuilder(string str)
@@ -87,9 +72,9 @@ namespace Brawndo
 
 			while (node != null)
 			{
-				sb.Append(node.value);
+				sb.Append(node.Value);
 
-				node = node.next;
+				node = node.Next;
 			}
 
 			return sb.ToString();
@@ -97,12 +82,17 @@ namespace Brawndo
 
 		private class Node
 		{
-			public Node next;
-			public readonly string value;
+			public Node Next;
+			public readonly string Value;
 
-			public Node(string str)
+			private Node(string value)
 			{
-				value = str;
+				Value = value;
+			}
+
+			public static implicit operator Node(string value)
+			{
+				return new Node(value);
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Brawndo.DynamicLinq.Dialect;
 
 namespace Brawndo.DynamicLinq.ClauseItems
 {
@@ -17,11 +18,11 @@ namespace Brawndo.DynamicLinq.ClauseItems
 			this.@object = @object;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
+		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters)
 		{
 			if (@object is string)
 			{
-				string parameterName = "@p" + parameters.Count;
+				string parameterName = dialect.ParameterPrefix + parameters.Count;
 
 				parameters.Add(new Tuple<string, object>(parameterName, @object));
 
@@ -33,7 +34,11 @@ namespace Brawndo.DynamicLinq.ClauseItems
 			}
 			else if (@object is DateTime)
 			{
-				return "'" + ((DateTime) @object).ToString("yyyy-MM-dd HH:mm:ss.fffffff") + "'";
+				return "'" + ((DateTime) @object).ToString(dialect.DateTimeFormat) + "'";
+			}
+			else if (@object is bool)
+			{
+				return (bool) @object ? "1" : "0";
 			}
 			else
 			{
