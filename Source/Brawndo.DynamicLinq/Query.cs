@@ -196,7 +196,7 @@ namespace Brawndo.DynamicLinq
 				foreach (var property in selectClauseItems)
 				{
 					if (notFirst)
-						sql += ", ";
+						sql.Append(", ");
 					else
 						notFirst = true;
 
