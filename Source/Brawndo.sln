@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brawndo.Specs", "Brawndo.Specs\Brawndo.Specs.csproj", "{905B839F-F701-44B1-AF74-B93FAFBDE574}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brawndo.DynamicLinq", "Brawndo.DynamicLinq\Brawndo.DynamicLinq.csproj", "{F84F5C92-F2A5-4935-B907-7586FE2BDFFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brawndo.Emit", "Brawndo.Emit\Brawndo.Emit.csproj", "{6D9E11D9-DB5C-407E-BBD7-A349E0EA13F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brawndo", "Brawndo\Brawndo.csproj", "{9DDA0DF0-55CC-4D50-8510-12FDC187D1E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{905B839F-F701-44B1-AF74-B93FAFBDE574}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{905B839F-F701-44B1-AF74-B93FAFBDE574}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{905B839F-F701-44B1-AF74-B93FAFBDE574}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{905B839F-F701-44B1-AF74-B93FAFBDE574}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F84F5C92-F2A5-4935-B907-7586FE2BDFFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F84F5C92-F2A5-4935-B907-7586FE2BDFFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F84F5C92-F2A5-4935-B907-7586FE2BDFFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F84F5C92-F2A5-4935-B907-7586FE2BDFFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D9E11D9-DB5C-407E-BBD7-A349E0EA13F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D9E11D9-DB5C-407E-BBD7-A349E0EA13F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D9E11D9-DB5C-407E-BBD7-A349E0EA13F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D9E11D9-DB5C-407E-BBD7-A349E0EA13F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DDA0DF0-55CC-4D50-8510-12FDC187D1E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DDA0DF0-55CC-4D50-8510-12FDC187D1E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DDA0DF0-55CC-4D50-8510-12FDC187D1E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DDA0DF0-55CC-4D50-8510-12FDC187D1E8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
