@@ -172,7 +172,7 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 			((object)deserializedResult1.Name).ShouldEqual("Name1");
 			((object)deserializedResult1.Value).ShouldEqual(null);
 			((object)deserializedResult2.Name).ShouldEqual("Name2");
-			((object)deserializedResult2.Value).ShouldEqual(1);
+			((object)deserializedResult2.Value).ShouldEqual(1L);
 			((object)deserializedResult3.Name).ShouldEqual("Name3");
 			((object)deserializedResult3.Value).ShouldEqual(null);
 		};

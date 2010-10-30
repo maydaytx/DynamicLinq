@@ -186,11 +186,11 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 
 		It should_retrieve_the_records = () =>
 		{
-			((object)results[0].Id).ShouldEqual(1);
+			((object)results[0].Id).ShouldEqual(1L);
 			((object)results[0].Name).ShouldEqual("Name1");
-			((object)results[1].Id).ShouldEqual(2);
+			((object)results[1].Id).ShouldEqual(2L);
 			((object)results[1].Name).ShouldEqual("Name2");
-			((object)results[2].Id).ShouldEqual(3);
+			((object)results[2].Id).ShouldEqual(3L);
 			((object)results[2].Name).ShouldEqual("Name3");
 		};
 
@@ -226,11 +226,11 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3'
 
 		It should_retrieve_the_records = () =>
 		{
-			((object)results[0].Id).ShouldEqual(1);
+			((object)results[0].Id).ShouldEqual(1L);
 			((object)results[0].FirstName).ShouldEqual("First1");
-			((object)results[1].Id).ShouldEqual(2);
+			((object)results[1].Id).ShouldEqual(2L);
 			((object)results[1].FirstName).ShouldEqual("First2");
-			((object)results[2].Id).ShouldEqual(3);
+			((object)results[2].Id).ShouldEqual(3L);
 			((object)results[2].FirstName).ShouldEqual("First3");
 		};
 
@@ -266,14 +266,14 @@ INSERT INTO [Table] ([Id], [Value], [Name]) VALUES (3, 3, 'Name3');"
 
 		It should_retrieve_the_records = () =>
 		{
-			((object)results[0].Id).ShouldEqual(1);
+			((object)results[0].Id).ShouldEqual(1L);
 			((object)results[0].Value).ShouldEqual(null);
 			((object)results[0].Name).ShouldEqual("Name1");
-			((object)results[1].Id).ShouldEqual(2);
-			((object)results[1].Value).ShouldEqual(1);
+			((object)results[1].Id).ShouldEqual(2L);
+			((object)results[1].Value).ShouldEqual(1L);
 			((object)results[1].Name).ShouldEqual("Name2");
-			((object)results[2].Id).ShouldEqual(3);
-			((object)results[2].Value).ShouldEqual(3);
+			((object)results[2].Id).ShouldEqual(3L);
+			((object)results[2].Value).ShouldEqual(3L);
 			((object)results[2].Name).ShouldEqual("Name3");
 		};
 
@@ -313,11 +313,11 @@ INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (3, 'Name3', 3);"
 
 		It should_retrieve_the_records = () =>
 		{
-			((object)results[0].Id).ShouldEqual(1);
+			((object)results[0].Id).ShouldEqual(1L);
 			((object)results[0].Status).ShouldEqual(Status.SomeStatus1);
-			((object)results[1].Id).ShouldEqual(2);
+			((object)results[1].Id).ShouldEqual(2L);
 			((object)results[1].Status).ShouldEqual(Status.SomeStatus2);
-			((object)results[2].Id).ShouldEqual(3);
+			((object)results[2].Id).ShouldEqual(3L);
 			((object)results[2].Status).ShouldEqual(Status.SomeStatus3);
 		};
 

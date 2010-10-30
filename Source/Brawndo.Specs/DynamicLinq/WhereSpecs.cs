@@ -8,7 +8,7 @@ namespace Brawndo.DynamicLinq
 	public class When_predicating_on_a_boolean_column
 	{
 		private static dynamic db;
-		private static IList<int> results;
+		private static IList<long> results;
 
 		Establish context = () =>
 		{
@@ -27,13 +27,13 @@ INSERT INTO [Table] ([Id], [IsSomething]) VALUES (4, 0);"
 		{
 			results = (from record in (object)db.Table
 					   where record.IsSomething == true
-					   select record.Id).Cast<int>().ToList();
+					   select record.Id).Cast<long>().ToList();
 		};
 
 		It should_retrieve_the_records = () =>
 		{
-			results[0].ShouldEqual(1);
-			results[1].ShouldEqual(3);
+			results[0].ShouldEqual(1L);
+			results[1].ShouldEqual(3L);
 		};
 
 		It should_retrieve_2_records = () =>
@@ -43,7 +43,7 @@ INSERT INTO [Table] ([Id], [IsSomething]) VALUES (4, 0);"
 	public class When_predicating_on_a_clause
 	{
 		private static dynamic db;
-		private static IList<int> results;
+		private static IList<long> results;
 
 		Establish context = () =>
 		{
@@ -61,11 +61,11 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'John', 'Bobson')
 		{
 			results = (from record in (object)db.Table
 					   where record.FirstName != "John"
-					   select record.Id).Cast<int>().ToList();
+					   select record.Id).Cast<long>().ToList();
 		};
 
 		It should_retrieve_the_records = () =>
-			results[0].ShouldEqual(2);
+			results[0].ShouldEqual(2L);
 
 		It should_retrieve_1_record = () =>
 			results.Count.ShouldEqual(1);
@@ -74,7 +74,7 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'John', 'Bobson')
 	public class When_predicating_on_a_like_clause
 	{
 		private static dynamic db;
-		private static IList<int> results;
+		private static IList<long> results;
 
 		Establish context = () =>
 		{
@@ -93,13 +93,13 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 		{
 			results = (from record in (object)db.Table
 					   where record.Name.Like("Sal%")
-					   select record.Id).Cast<int>().ToList();
+					   select record.Id).Cast<long>().ToList();
 		};
 
 		It should_retrieve_the_records = () =>
 		{
-			results[0].ShouldEqual(1);
-			results[1].ShouldEqual(4);
+			results[0].ShouldEqual(1L);
+			results[1].ShouldEqual(4L);
 		};
 
 		It should_retrieve_2_records = () =>
@@ -172,7 +172,7 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 	public class When_predicating_on_multiple_clauses
 	{
 		private static dynamic db;
-		private static IList<int> results;
+		private static IList<long> results;
 
 		Establish context = () =>
 		{
@@ -192,11 +192,11 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 			results = (from record in (object) db.Table
 					   where record.Name.Like("S%")
 					   where record.Id > 1
-					   select record.Id).Cast<int>().ToList();
+					   select record.Id).Cast<long>().ToList();
 		};
 
 		It should_retrieve_the_records = () =>
-			results[0].ShouldEqual(4);
+			results[0].ShouldEqual(4L);
 
 		It should_retrieve_1_records = () =>
 			results.Count.ShouldEqual(1);
@@ -205,7 +205,7 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 	public class When_comparing_something_to_null
 	{
 		private static dynamic db;
-		private static IList<int> results;
+		private static IList<long> results;
 
 		Establish context = () =>
 		{
@@ -224,11 +224,11 @@ INSERT INTO [Table] ([Id]) VALUES (4);"
 		{
 			results = (from record in (object)db.Table
 					   where record.Name == null
-					   select record.Id).Cast<int>().ToList();
+					   select record.Id).Cast<long>().ToList();
 		};
 
 		It should_retrieve_the_records = () =>
-			results[0].ShouldEqual(4);
+			results[0].ShouldEqual(4L);
 
 		It should_retrieve_1_records = () =>
 			results.Count.ShouldEqual(1);
@@ -237,7 +237,7 @@ INSERT INTO [Table] ([Id]) VALUES (4);"
 	public class When_comparing_something_to_an_enum
 	{
 		private static dynamic db;
-		private static IList<int> results;
+		private static IList<long> results;
 
 		public enum Status
 		{
@@ -263,11 +263,11 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 		{
 			results = (from record in (object)db.Table
 					   where record.Status == (int) Status.SomeStatus2
-					   select record.Id).Cast<int>().ToList();
+					   select record.Id).Cast<long>().ToList();
 		};
 
 		It should_retrieve_the_records = () =>
-			results[0].ShouldEqual(2);
+			results[0].ShouldEqual(2L);
 
 		It should_retrieve_1_records = () =>
 			results.Count.ShouldEqual(1);
@@ -276,7 +276,7 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 	public class When_comparing_a_date_time
 	{
 		private static dynamic db;
-		private static IList<int> results;
+		private static IList<long> results;
 
 		public enum Status
 		{
@@ -302,11 +302,11 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (4, 'Sally');"
 		{
 			results = (from record in (object)db.Table
 					   where record.Date > DateTime.Now
-					   select record.Id).Cast<int>().ToList();
+					   select record.Id).Cast<long>().ToList();
 		};
 
 		It should_retrieve_the_records = () =>
-			results[0].ShouldEqual(1);
+			results[0].ShouldEqual(1L);
 
 		It should_retrieve_1_records = () =>
 			results.Count.ShouldEqual(1);
