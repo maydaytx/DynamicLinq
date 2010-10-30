@@ -19,7 +19,7 @@ namespace Brawndo.DynamicLinq.ClauseItems
 
 		internal override LinkedListStringBuilder BuildClause(IList<Tuple<string, object>> parameters)
 		{
-			return new LinkedListStringBuilder("[" + name + "]");
+			return "[" + name + "]";
 		}
 	}
 }

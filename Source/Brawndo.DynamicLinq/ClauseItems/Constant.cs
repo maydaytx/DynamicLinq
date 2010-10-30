@@ -25,19 +25,19 @@ namespace Brawndo.DynamicLinq.ClauseItems
 
 				parameters.Add(new Tuple<string, object>(parameterName, @object));
 
-				return new LinkedListStringBuilder(parameterName);
+				return parameterName;
 			}
 			else if (@object is char)
 			{
-				return new LinkedListStringBuilder("'" + @object + "'");
+				return "'" + @object + "'";
 			}
 			else if (@object is DateTime)
 			{
-				return new LinkedListStringBuilder("'" + ((DateTime) @object).ToString("yyyy-MM-dd HH:mm:ss.fffffff") + "'");
+				return "'" + ((DateTime) @object).ToString("yyyy-MM-dd HH:mm:ss.fffffff") + "'";
 			}
 			else
 			{
-				return new LinkedListStringBuilder(@object.ToString());
+				return @object.ToString();
 			}
 		}
 	}

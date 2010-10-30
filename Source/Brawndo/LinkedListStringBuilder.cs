@@ -74,6 +74,11 @@ namespace Brawndo
 			return x;
 		}
 
+		public static implicit operator LinkedListStringBuilder(string str)
+		{
+			return new LinkedListStringBuilder(str);
+		}
+
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder(count);

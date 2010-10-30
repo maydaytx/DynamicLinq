@@ -40,9 +40,9 @@ namespace Brawndo.DynamicLinq
 			object obj = predicate(clauseGetter);
 
 			if (obj is ClauseItem)
-			    query.AddWhereClause((ClauseItem) obj);
+				query.AddWhereClause((ClauseItem) obj);
 			else
-			    throw new ArgumentException("Invalid predicate");
+				throw new ArgumentException("Invalid predicate");
 
 			return query;
 		}

@@ -48,7 +48,7 @@ namespace Brawndo.DynamicLinq.ClauseItems
 					break;
 				case BinaryOperator.Equal:
 					if (ReferenceEquals(leftItem, null) && ReferenceEquals(rightItem, null))
-						return new LinkedListStringBuilder("(TRUE)");
+						return "(TRUE)";
 					else if (ReferenceEquals(leftItem, null))
 						return "(" + rightItem.BuildClause(parameters) + "IS NULL)";
 					else if (ReferenceEquals(rightItem, null))
@@ -58,7 +58,7 @@ namespace Brawndo.DynamicLinq.ClauseItems
 					break;
 				case BinaryOperator.NotEqual:
 					if (ReferenceEquals(leftItem, null) && ReferenceEquals(rightItem, null))
-						return new LinkedListStringBuilder("(FALSE)");
+						return "(FALSE)";
 					else if (ReferenceEquals(leftItem, null))
 						return "(" + rightItem.BuildClause(parameters) + "IS NOT NULL)";
 					else if (ReferenceEquals(rightItem, null))

@@ -175,7 +175,7 @@ namespace Brawndo.DynamicLinq
 
 		private string BuildSQL(IList<Tuple<string, object>> parameters, IDictionary<string, Type> conversions)
 		{
-			LinkedListStringBuilder sql = new LinkedListStringBuilder("SELECT ");
+			LinkedListStringBuilder sql = "SELECT ";
 			bool notFirst = false;
 
 			if (selectClauseItems == null || selectClauseItems.Count == 0)
