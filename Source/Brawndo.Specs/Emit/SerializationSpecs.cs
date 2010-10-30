@@ -4,10 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Brawndo.DynamicLinq;
-using Brawndo.Emit;
 using Machine.Specifications;
 
-namespace Brawndo.Specs
+namespace Brawndo.Emit
 {
 	internal static class SerializationExtensions
 	{

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Brawndo.DynamicLinq;
 using Machine.Specifications;
 
-namespace Brawndo.Specs
+namespace Brawndo.DynamicLinq
 {
 	public class When_predicating_on_a_boolean_column
 	{

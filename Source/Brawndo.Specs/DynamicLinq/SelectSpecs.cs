@@ -1,45 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SQLite;
 using System.Linq;
-using Brawndo.DynamicLinq;
 using Machine.Specifications;
 
-namespace Brawndo.Specs
+namespace Brawndo.DynamicLinq
 {
-	internal static class SQLite
-	{
-		public static Func<IDbConnection> CreateInMemoryDatabase(string sql, params Tuple<string, object>[] parameters)
-		{
-			return () =>
-			{
-				SQLiteConnection connection = new SQLiteConnection("Data source=:memory:");
-
-				connection.Open();
-
-				using (SQLiteCommand command = connection.CreateCommand())
-				{
-					command.CommandText = sql;
-
-					foreach (Tuple<string, object> parameter in parameters)
-					{
-						IDbDataParameter dataParameter = command.CreateParameter();
-
-						dataParameter.ParameterName = parameter.Item1;
-						dataParameter.Value = parameter.Item2;
-
-						command.Parameters.Add(dataParameter);
-					}
-
-					command.ExecuteNonQuery();
-				}
-
-				return connection;
-			};
-		}
-	}
-
 	public class When_selecting_a_single_column
 	{
 		private static dynamic db;
