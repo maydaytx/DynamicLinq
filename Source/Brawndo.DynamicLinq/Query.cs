@@ -114,6 +114,9 @@ namespace Brawndo.DynamicLinq
 								}
 								else
 								{
+									if (value == null && dataType.IsValueType && !IsNullable(dataType))
+										dataType = typeof (Nullable<>).MakeGenericType(dataType);
+
 									dataTypes.Add(name, dataType);
 								}
 
