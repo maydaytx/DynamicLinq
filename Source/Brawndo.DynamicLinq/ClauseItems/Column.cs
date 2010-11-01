@@ -6,6 +6,7 @@ namespace Brawndo.DynamicLinq.ClauseItems
 {
 	public class Column : ClauseItem
 	{
+		private readonly string tableName;
 		private readonly string name;
 
 		internal string Name
@@ -13,14 +14,15 @@ namespace Brawndo.DynamicLinq.ClauseItems
 			get { return name; }
 		}
 
-		internal Column(string name)
+		internal Column(string tableName, string name)
 		{
+			this.tableName = tableName;
 			this.name = name;
 		}
 
 		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters)
 		{
-			return "[" + name + "]";
+			return "[" + tableName + "].[" + name + "]";
 		}
 	}
 }

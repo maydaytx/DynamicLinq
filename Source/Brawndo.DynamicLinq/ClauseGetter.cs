@@ -5,13 +5,18 @@ namespace Brawndo.DynamicLinq
 {
 	public class ClauseGetter : DynamicObject
 	{
-		internal ClauseGetter() { }
+		private readonly string tableName;
+
+		internal ClauseGetter(string tableName)
+		{
+			this.tableName = tableName;
+		}
 
 		public override bool TryGetMember(GetMemberBinder binder, out object result)
 		{
 			string name = binder.Name;
 
-			result = new Column(name);
+			result = new Column(tableName, name);
 
 			return true;
 		}

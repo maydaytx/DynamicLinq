@@ -14,6 +14,7 @@ namespace Brawndo.DynamicLinq
 	{
 		private readonly DB db;
 		private readonly string tableName;
+		private readonly ClauseGetter clauseGetter;
 		private IList<Tuple<string, ClauseItem>> selectClauseItems;
 		private ClauseItem whereClause;
 		private IEnumerable<object> results;
@@ -23,11 +24,17 @@ namespace Brawndo.DynamicLinq
 		{
 			this.db = db;
 			this.tableName = tableName;
+			clauseGetter = new ClauseGetter(tableName);
 		}
 
 		private Query(SerializationInfo info, StreamingContext context)
 		{
 			results = (IEnumerable<object>) info.GetValue("Results", typeof (IEnumerable<object>));
+		}
+
+		internal ClauseGetter ClauseGetter
+		{
+			get { return clauseGetter; }
 		}
 
 		internal void SetSelectClauseItems(IList<Tuple<string, ClauseItem>> clauseItems)

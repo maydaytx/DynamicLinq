@@ -9,16 +9,11 @@ namespace Brawndo.DynamicLinq
 	{
 		public static IEnumerable<object> Select(this object source, Func<dynamic, object> selector)
 		{
-			Query query = source as Query;
+            Query query = source.GetQuery();
 
-			if (query == null)
-				throw new ArgumentOutOfRangeException("source");
+			object obj = selector(query.ClauseGetter);
 
-			ClauseGetter clauseGetter = new ClauseGetter();
-
-			object obj = selector(clauseGetter);
-
-			if (obj == clauseGetter)
+            if (obj == query.ClauseGetter)
 				query.SetSelectClauseItems(null);
 			else if (obj is ClauseItem)
 				query.SetSelectClauseItems(new[] {new Tuple<string, ClauseItem>(null, (ClauseItem) obj)});
@@ -30,21 +25,26 @@ namespace Brawndo.DynamicLinq
 
 		public static IEnumerable<object> Where(this object source, Func<dynamic, object> predicate)
 		{
-			Query query = source as Query;
+            Query query = source.GetQuery();
 
-			if (query == null)
-				throw new ArgumentOutOfRangeException("source");
-
-			ClauseGetter clauseGetter = new ClauseGetter();
-
-			object obj = predicate(clauseGetter);
+            object obj = predicate(query.ClauseGetter);
 
 			if (obj is ClauseItem)
-				query.AddWhereClause((ClauseItem) obj);
+			    query.AddWhereClause((ClauseItem) obj);
 			else
-				throw new ArgumentException("Invalid predicate");
+			    throw new ArgumentException("Invalid predicate");
 
 			return query;
 		}
+
+        private static Query GetQuery(this object source)
+        {
+            Query query = source as Query;
+
+            if (query == null)
+                throw new ArgumentOutOfRangeException("source");
+
+            return query;
+        }
 	}
 }
