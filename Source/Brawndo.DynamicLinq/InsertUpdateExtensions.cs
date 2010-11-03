@@ -19,13 +19,16 @@ namespace Brawndo.DynamicLinq
 
 			using (IDbConnection connection = databaseOperation.DB.GetConnection())
 			{
-				foreach (object row in rows)
+				using (IDbCommand command = connection.CreateCommand())
 				{
-					PropertyInfo[] properties = row.GetType().GetProperties();
+					LinkedListStringBuilder commandText = new LinkedListStringBuilder();
+					int parameterCount = 0;
 
-					if (properties.Length > 0)
+					foreach (object row in rows)
 					{
-						using (IDbCommand command = connection.CreateCommand())
+						PropertyInfo[] properties = row.GetType().GetProperties();
+
+						if (properties.Length > 0)
 						{
 							LinkedListStringBuilder columns = new LinkedListStringBuilder();
 							LinkedListStringBuilder values = new LinkedListStringBuilder();
@@ -34,7 +37,7 @@ namespace Brawndo.DynamicLinq
 							{
 								IDbDataParameter dataParameter = command.CreateParameter();
 
-								string parameterName = databaseOperation.DB.Dialect.ParameterPrefix + "p" + i;
+								string parameterName = databaseOperation.DB.Dialect.ParameterPrefix + "p" + (parameterCount++);
 
 								dataParameter.ParameterName = parameterName;
 								dataParameter.Value = properties[i].GetValue(row, null);
@@ -51,17 +54,17 @@ namespace Brawndo.DynamicLinq
 								values.Append(parameterName);
 							}
 
-							LinkedListStringBuilder commandText = new LinkedListStringBuilder(string.Format("INSERT INTO [{0}] (", databaseOperation.TableName));
+							commandText.Append(string.Format("INSERT INTO [{0}] (", databaseOperation.TableName));
 							commandText.Append(columns);
 							commandText.Append(") VALUES (");
 							commandText.Append(values);
-							commandText.Append(")");
-
-							command.CommandText = commandText.ToString();
-
-							command.ExecuteNonQuery();
+							commandText.Append(");\n");
 						}
 					}
+
+					command.CommandText = commandText.ToString();
+
+					command.ExecuteNonQuery();
 				}
 			}
 		}
