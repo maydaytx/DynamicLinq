@@ -69,7 +69,7 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 	public class When_selecting_and_explicitly_converting_a_single_column
 	{
 		private static dynamic db;
-		private static IList<long> results;
+		private static IList<int> results;
 
 		Establish context = () =>
 		{
@@ -86,7 +86,7 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 		Because of = () =>
 		{
 			results = (from record in (object)db.Table
-					   select record.Id.To<long>()).Cast<long>().ToList();
+					   select record.Id.To<int>()).Cast<int>().ToList();
 		};
 
 		It should_retrieve_3_records = () =>

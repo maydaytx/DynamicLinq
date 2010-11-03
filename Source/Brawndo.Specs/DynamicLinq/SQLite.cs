@@ -5,37 +5,97 @@ using Brawndo.DynamicLinq.Dialect;
 
 namespace Brawndo.DynamicLinq
 {
-	internal static class SQLite
+	internal class SQLite
 	{
-		public static DB GetDB(string sql, params Tuple<string, object>[] parameters)
+		internal static DB GetDB(string sql, params Tuple<string, object>[] parameters)
 		{
-			Func<IDbConnection> getConnection = () =>
+			UndisposableMemoryDatabase connection = new UndisposableMemoryDatabase();
+
+			connection.Open();
+
+			using (IDbCommand command = connection.CreateCommand())
 			{
-				SQLiteConnection connection = new SQLiteConnection("Data source=:memory:");
+				command.CommandText = sql;
 
-				connection.Open();
-
-				using (SQLiteCommand command = connection.CreateCommand())
+				foreach (Tuple<string, object> parameter in parameters)
 				{
-					command.CommandText = sql;
+					IDbDataParameter dataParameter = command.CreateParameter();
 
-					foreach (Tuple<string, object> parameter in parameters)
-					{
-						IDbDataParameter dataParameter = command.CreateParameter();
+					dataParameter.ParameterName = parameter.Item1;
+					dataParameter.Value = parameter.Item2;
 
-						dataParameter.ParameterName = parameter.Item1;
-						dataParameter.Value = parameter.Item2;
-
-						command.Parameters.Add(dataParameter);
-					}
-
-					command.ExecuteNonQuery();
+					command.Parameters.Add(dataParameter);
 				}
 
-				return connection;
-			};
+				command.ExecuteNonQuery();
+			}
+
+			Func<IDbConnection> getConnection = () => connection;
 
 			return new DB(getConnection, new SQLiteDialect());
+		}
+
+		private class UndisposableMemoryDatabase : IDbConnection
+		{
+			private readonly IDbConnection connection;
+
+			public UndisposableMemoryDatabase()
+			{
+				connection = new SQLiteConnection("Data source=:memory:");
+			}
+
+			public void Dispose() { }
+
+			public IDbTransaction BeginTransaction()
+			{
+				return connection.BeginTransaction();
+			}
+
+			public IDbTransaction BeginTransaction(IsolationLevel il)
+			{
+				return connection.BeginTransaction(il);
+			}
+
+			public void Close()
+			{
+				connection.Close();
+			}
+
+			public void ChangeDatabase(string databaseName)
+			{
+				connection.ChangeDatabase(databaseName);
+			}
+
+			public IDbCommand CreateCommand()
+			{
+				return connection.CreateCommand();
+			}
+
+			public void Open()
+			{
+				connection.Open();
+			}
+
+			public string ConnectionString
+			{
+				get { return connection.ConnectionString; }
+				set { connection.ConnectionString = value; }
+			}
+
+			public int ConnectionTimeout
+			{
+				get { return connection.ConnectionTimeout; }
+			}
+
+			public string Database
+			{
+				get { return connection.Database; }
+			}
+
+			public ConnectionState State
+			{
+				get { return connection.State; }
+			}
 		}
 	}
 }

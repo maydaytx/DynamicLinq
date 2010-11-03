@@ -139,7 +139,7 @@ namespace Brawndo.DynamicLinq.Dialect
 
 		public virtual string ParameterPrefix
 		{
-			get { return "@p"; }
+			get { return "@"; }
 		}
 	}
 }

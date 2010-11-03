@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DynamicLinq\InsertUpdateSpecs.cs" />
     <Compile Include="DynamicLinq\SelectSpecs.cs" />
     <Compile Include="DynamicLinq\SQLite.cs" />
     <Compile Include="DynamicLinq\SQLServer.cs" />

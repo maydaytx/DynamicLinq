@@ -22,7 +22,7 @@ namespace Brawndo.DynamicLinq.ClauseItems
 
 		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters)
 		{
-			return "[" + tableName + "].[" + name + "]";
+			return string.Format("[{0}].[{1}]", tableName, name);
 		}
 	}
 }

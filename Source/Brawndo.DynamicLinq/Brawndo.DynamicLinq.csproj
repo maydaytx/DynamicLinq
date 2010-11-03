@@ -54,11 +54,13 @@
     <Compile Include="ClauseItems\NullComparisonOperation.cs" />
     <Compile Include="ClauseItems\SimpleOperator.cs" />
     <Compile Include="ClauseItems\UnaryOperation.cs" />
+    <Compile Include="DatabaseOperation.cs" />
     <Compile Include="DB.cs" />
     <Compile Include="Dialect\PostgreSQLDialect.cs" />
     <Compile Include="Dialect\SQLDialect.cs" />
     <Compile Include="Dialect\SQLiteDialect.cs" />
     <Compile Include="Dialect\SQLServerDialect.cs" />
+    <Compile Include="InsertUpdateExtensions.cs" />
     <Compile Include="LinqExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query.cs" />

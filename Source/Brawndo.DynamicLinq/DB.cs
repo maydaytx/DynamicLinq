@@ -28,7 +28,7 @@ namespace Brawndo.DynamicLinq
 
 		public override bool TryGetMember(GetMemberBinder binder, out object result)
 		{
-			result = new Query(this, binder.Name);
+			result = new DatabaseOperation(this, binder.Name);
 
 			return true;
 		}

@@ -22,7 +22,7 @@ namespace Brawndo.DynamicLinq.ClauseItems
 		{
 			if (@object is string)
 			{
-				string parameterName = dialect.ParameterPrefix + parameters.Count;
+				string parameterName = dialect.ParameterPrefix + "p" +parameters.Count;
 
 				parameters.Add(new Tuple<string, object>(parameterName, @object));
 

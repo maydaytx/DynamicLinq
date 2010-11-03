@@ -37,12 +37,36 @@ namespace Brawndo.DynamicLinq
 			return query;
 		}
 
+        public static IEnumerable<object> Join(this object outer, object inner, Func<dynamic, object> outerKeySelector, Func<dynamic, object> innerKeySelector, Func<dynamic, dynamic, object> resultSelector)
+        {
+            Query outerQuery = outer.GetQuery();
+            Query innerQuery = inner.GetQuery();
+
+            object outerKey = outerKeySelector(outerQuery.ClauseGetter);
+            object innerKey = innerKeySelector(innerQuery.ClauseGetter);
+            object results = resultSelector(outerQuery.ClauseGetter, innerQuery.ClauseGetter);
+
+            return null;
+        }
+
         private static Query GetQuery(this object source)
         {
-            Query query = source as Query;
+            Query query;
 
-            if (query == null)
-                throw new ArgumentOutOfRangeException("source");
+            if (source is Query)
+            {
+            	query = (Query) source;
+            }
+			else if (source is DatabaseOperation)
+			{
+				DatabaseOperation databaseOperation = (DatabaseOperation) source;
+
+				query = new Query(databaseOperation.DB, databaseOperation.TableName);
+			}
+			else
+			{
+				throw new ArgumentOutOfRangeException("source");
+			}
 
             return query;
         }
