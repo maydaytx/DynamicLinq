@@ -21,7 +21,7 @@ namespace DynamicLinq.ClauseItems
 
 		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters, ParameterNameProvider nameProvider)
 		{
-			if (@object is string || @object is byte[])
+			if (@object is string || @object is byte[] || @object.GetType().IsEnum)
 			{
 				string parameterName = dialect.ParameterPrefix + "p" +parameters.Count;
 

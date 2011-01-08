@@ -55,16 +55,42 @@ namespace DynamicLinq
 
 		public void WithJoin(Func<object, object> outerKeySelector, Func<object, object> innerKeySelector, Func<object, object, object> resultSelector, ClauseGetter outerClauseGetter, ClauseGetter innerClauseGetter, string innerTableName)
 		{
-			ClauseItem outerKey = outerKeySelector(outerClauseGetter) as ClauseItem;
-			ClauseItem innerKey = innerKeySelector(innerClauseGetter) as ClauseItem;
-
-			if (ReferenceEquals(outerKey, null) || ReferenceEquals(innerKey, null))
-				throw new ArgumentException("Invalid key selector");
+			object outerKey = outerKeySelector(outerClauseGetter);
+			object innerKey = innerKeySelector(innerClauseGetter);
 
 			joinTableName = innerTableName;
 			joinParameters = new List<Tuple<string, object>>();
+			ClauseItem joinClause;
 
-			ClauseItem joinClause = new BinaryOperation(SimpleOperator.Equal, outerKey, innerKey);
+			if (outerKey == outerClauseGetter || innerKey == innerClauseGetter)
+			{
+				throw new ArgumentException("Invalid key selector");
+			}
+			else if (outerKey is ClauseItem && innerKey is ClauseItem)
+			{
+				joinClause = new BinaryOperation(SimpleOperator.Equal, (ClauseItem) outerKey, (ClauseItem) innerKey);
+			}
+			else
+			{
+				ClauseItem[] outerKeyProperties = GetClauseItems(outerKey).Select(property => property.Item2).ToArray();
+				ClauseItem[] innerKeyProperties = GetClauseItems(innerKey).Select(property => property.Item2).ToArray();
+
+				if (outerKeyProperties.Length == 0 || innerKeyProperties.Length == 0)
+					throw new ArgumentException("Invalid key selector");
+
+				if (outerKeyProperties.Length != innerKeyProperties.Length)
+					throw new ArgumentException("Unequal number of selectors");
+
+				joinSQL = new LinkedListStringBuilder();
+
+				joinClause = new BinaryOperation(SimpleOperator.Equal, outerKeyProperties[0], innerKeyProperties[0]);
+
+				for (int i = 1; i < outerKeyProperties.Length; ++i)
+				{
+					ClauseItem additionalClause = new BinaryOperation(SimpleOperator.Equal, outerKeyProperties[i], innerKeyProperties[i]);
+					joinClause = new BinaryOperation(SimpleOperator.And, joinClause, additionalClause);
+				}
+			}
 			
 			joinSQL = joinClause.BuildClause(db.Dialect, joinParameters, nameProvider);
 
@@ -140,7 +166,7 @@ namespace DynamicLinq
 
 				bool notFirst = false;
 
-				foreach (Tuple<string, ClauseItem> property in (Enumerable.Select(obj.GetType().GetProperties(), p => new Tuple<string, ClauseItem>(p.Name, (ClauseItem) p.GetValue(obj, null)))))
+				foreach (Tuple<string, ClauseItem> property in GetClauseItems(obj))
 				{
 					if (notFirst)
 						selectSQL.Append(", ");
@@ -153,6 +179,11 @@ namespace DynamicLinq
 					selectSQL.Append(" AS [" + property.Item1 + "]");
 				}
 			}
+		}
+
+		private static IEnumerable<Tuple<string, ClauseItem>> GetClauseItems(object obj)
+		{
+			return Enumerable.Select(obj.GetType().GetProperties(), p => new Tuple<string, ClauseItem>(p.Name, (ClauseItem) p.GetValue(obj, null)));
 		}
 
 		private static ClauseItem CheckForConversion(Tuple<string, ClauseItem> property, IDictionary<string, Type> conversions)

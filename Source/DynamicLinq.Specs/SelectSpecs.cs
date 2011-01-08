@@ -285,9 +285,9 @@ namespace DynamicLinq
 			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] TEXT, [Status] INTEGER)");
 
 			db.Insert(
-				new {Id = 1, Name = "Name1", Status = 1},
-				new {Id = 2, Name = "Name2", Status = 2},
-				new {Id = 3, Name = "Name3", Status = 3})
+				new {Id = 1, Name = "Name1", Status = Status.SomeStatus1},
+				new {Id = 2, Name = "Name2", Status = Status.SomeStatus2},
+				new {Id = 3, Name = "Name3", Status = Status.SomeStatus3})
 				.Into(x => x.Table);
 		};
 

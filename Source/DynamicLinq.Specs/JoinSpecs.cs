@@ -12,7 +12,6 @@ namespace DynamicLinq
 
 		Establish context = () =>
 		{
-
 			db = SQLite.GetDB
 				(
 @"CREATE TABLE [Table1] ([Id] INTEGER PRIMARY KEY, [Name] TEXT, [Table2Id] INTEGER);
@@ -62,5 +61,57 @@ CREATE TABLE [Table2] ([Id] INTEGER PRIMARY KEY, [Name] TEXT);"
 
 		It should_retrieve_4_records = () =>
 			results.Count.ShouldEqual(4);
+	}
+	
+	public class When_joining_two_tables_on_multiple_conditions
+	{
+		private static DB db;
+		private static IList<long> results;
+
+		private enum Status
+		{
+			SomeStatus1 = 1,
+			SomeStatus2 = 2
+		}
+
+		Establish context = () =>
+		{
+			db = SQLite.GetDB
+				(
+@"CREATE TABLE [Table1] ([Id] INTEGER PRIMARY KEY, [Name] TEXT, [Status] INTEGER);
+
+CREATE TABLE [Table2] ([Id] INTEGER PRIMARY KEY, [Name] TEXT, [Status] INTEGER);"
+				);
+
+			db.Insert(
+				new {Id = 1, Name = "Name11", Status = Status.SomeStatus1},
+				new {Id = 2, Name = "Name12", Status = Status.SomeStatus2},
+				new {Id = 3, Name = "Name13", Status = Status.SomeStatus1},
+				new {Id = 4, Name = "Name14", Status = Status.SomeStatus2})
+				.Into(x => x.Table1);
+
+			db.Insert(
+				new {Id = 1, Name = "Name11", Status = Status.SomeStatus1},
+				new {Id = 2, Name = "Name12", Status = Status.SomeStatus1},
+				new {Id = 3, Name = "Name13", Status = Status.SomeStatus2},
+				new {Id = 4, Name = "Name14", Status = Status.SomeStatus2})
+				.Into(x => x.Table2);
+		};
+
+		Because of = () =>
+		{
+			results = (from record1 in db.Query(x => x.Table1)
+			           join record2 in db.Query(x => x.Table2) on new {record1.Name, record1.Status} equals new {record2.Name, record2.Status}
+			           select record1.Id).Cast<long>().ToList();
+		};
+
+		It should_retrieve_the_records = () =>
+		{
+			results[0].ShouldEqual(1);
+			results[1].ShouldEqual(4);
+		};
+
+		It should_retrieve_4_records = () =>
+			results.Count.ShouldEqual(2);
 	}
 }
