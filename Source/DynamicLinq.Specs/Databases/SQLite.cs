@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Data;
 using System.Data.SQLite;
-using Brawndo.DynamicLinq.Dialect;
+using DynamicLinq.Dialect;
 
-namespace Brawndo.DynamicLinq
+namespace DynamicLinq.Databases
 {
 	internal class SQLite
 	{
-		internal static DB GetDB(string sql, params Tuple<string, object>[] parameters)
+		internal static DB GetDB(string sql)
 		{
 			UndisposableMemoryDatabase connection = new UndisposableMemoryDatabase();
 
@@ -16,16 +16,6 @@ namespace Brawndo.DynamicLinq
 			using (IDbCommand command = connection.CreateCommand())
 			{
 				command.CommandText = sql;
-
-				foreach (Tuple<string, object> parameter in parameters)
-				{
-					IDbDataParameter dataParameter = command.CreateParameter();
-
-					dataParameter.ParameterName = parameter.Item1;
-					dataParameter.Value = parameter.Item2;
-
-					command.Parameters.Add(dataParameter);
-				}
 
 				command.ExecuteNonQuery();
 			}
@@ -42,6 +32,10 @@ namespace Brawndo.DynamicLinq
 			public UndisposableMemoryDatabase()
 			{
 				connection = new SQLiteConnection("Data source=:memory:");
+
+				//var info = new System.IO.FileInfo("Test.s3db");
+				//if (info.Exists) info.Delete();
+				//connection = new SQLiteConnection("Data source=Test.s3db");
 			}
 
 			public void Dispose() { }

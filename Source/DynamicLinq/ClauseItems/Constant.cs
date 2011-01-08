@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Brawndo.DynamicLinq.Dialect;
+using DynamicLinq.Collections;
+using DynamicLinq.Dialect;
 
-namespace Brawndo.DynamicLinq.ClauseItems
+namespace DynamicLinq.ClauseItems
 {
 	public class Constant : ClauseItem
 	{
@@ -18,9 +19,9 @@ namespace Brawndo.DynamicLinq.ClauseItems
 			this.@object = @object;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters)
+		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters, ParameterNameProvider nameProvider)
 		{
-			if (@object is string)
+			if (@object is string || @object is byte[])
 			{
 				string parameterName = dialect.ParameterPrefix + "p" +parameters.Count;
 

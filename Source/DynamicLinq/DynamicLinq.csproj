@@ -8,8 +8,8 @@
     <ProjectGuid>{F84F5C92-F2A5-4935-B907-7586FE2BDFFF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Brawndo.DynamicLinq</RootNamespace>
-    <AssemblyName>Brawndo.DynamicLinq</AssemblyName>
+    <RootNamespace>DynamicLinq</RootNamespace>
+    <AssemblyName>DynamicLinq</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,9 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Brawndo\LinkedListStringBuilder.cs">
-      <Link>LinkedListStringBuilder.cs</Link>
-    </Compile>
     <Compile Include="ClauseGetter.cs" />
     <Compile Include="ClauseItems\BinaryOperation.cs" />
     <Compile Include="ClauseItems\ClauseItem.cs" />
@@ -54,22 +51,25 @@
     <Compile Include="ClauseItems\NullComparisonOperation.cs" />
     <Compile Include="ClauseItems\SimpleOperator.cs" />
     <Compile Include="ClauseItems\UnaryOperation.cs" />
-    <Compile Include="DatabaseOperation.cs" />
     <Compile Include="DB.cs" />
+    <Compile Include="Dialect\MySQLDialect.cs" />
     <Compile Include="Dialect\PostgreSQLDialect.cs" />
     <Compile Include="Dialect\SQLDialect.cs" />
     <Compile Include="Dialect\SQLiteDialect.cs" />
     <Compile Include="Dialect\SQLServerDialect.cs" />
-    <Compile Include="InsertUpdateExtensions.cs" />
-    <Compile Include="LinqExtensions.cs" />
+    <Compile Include="Collections\DynamicBag.cs" />
+    <Compile Include="Insertor.cs" />
+    <Compile Include="Collections\LinkedListStringBuilder.cs" />
+    <Compile Include="NameGetter.cs" />
+    <Compile Include="ParameterNameProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Brawndo.Emit\Brawndo.Emit.csproj">
-      <Project>{6D9E11D9-DB5C-407E-BBD7-A349E0EA13F1}</Project>
-      <Name>Brawndo.Emit</Name>
-    </ProjectReference>
+    <Compile Include="QueryBuilder.cs" />
+    <Compile Include="QueryConnection.cs" />
+    <Compile Include="QueryEnumerator.cs" />
+    <Compile Include="QueryInfo.cs" />
+    <Compile Include="UpdateExecutor.cs" />
+    <Compile Include="Updator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

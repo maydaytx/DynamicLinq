@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using Brawndo.DynamicLinq.Dialect;
+using DynamicLinq.Collections;
+using DynamicLinq.Dialect;
 
-namespace Brawndo.DynamicLinq.ClauseItems
+namespace DynamicLinq.ClauseItems
 {
 	public abstract class ClauseItem
 	{
 		internal ClauseItem() { }
 
-		internal abstract LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters);
+		internal abstract LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters, ParameterNameProvider nameProvider);
 
 		#region implicit conversions
 

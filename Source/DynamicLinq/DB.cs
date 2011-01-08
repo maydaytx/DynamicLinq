@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Data;
-using System.Dynamic;
-using Brawndo.DynamicLinq.Dialect;
+using DynamicLinq.Dialect;
 
-namespace Brawndo.DynamicLinq
+namespace DynamicLinq
 {
-	public class DB : DynamicObject
+	public class DB
 	{
 		private readonly Func<IDbConnection> getConnection;
 		private readonly SQLDialect dialect;
@@ -26,11 +25,27 @@ namespace Brawndo.DynamicLinq
 			this.dialect = dialect;
 		}
 
-		public override bool TryGetMember(GetMemberBinder binder, out object result)
+		public Query Query(Func<dynamic, object> getTableName)
 		{
-			result = new DatabaseOperation(this, binder.Name);
+			NameGetter nameGetter = new NameGetter();
 
-			return true;
+			string tableName = (string) getTableName(nameGetter);
+
+			return new Query(this, tableName);
+		}
+
+		public Insertor Insert(params object[] rows)
+		{
+			return new Insertor(this, rows);
+		}
+
+		public Updator Update(Func<dynamic, object> getTableName)
+		{
+			NameGetter nameGetter = new NameGetter();
+
+			string tableName = (string)getTableName(nameGetter);
+
+			return new Updator(this, tableName);
 		}
 	}
 }

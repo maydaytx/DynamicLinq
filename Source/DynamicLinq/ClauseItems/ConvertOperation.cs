@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Brawndo.DynamicLinq.Dialect;
+using DynamicLinq.Collections;
+using DynamicLinq.Dialect;
 
-namespace Brawndo.DynamicLinq.ClauseItems
+namespace DynamicLinq.ClauseItems
 {
 	public class ConvertOperation : ClauseItem
 	{
@@ -25,7 +26,7 @@ namespace Brawndo.DynamicLinq.ClauseItems
 			this.type = type;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters)
+		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters, ParameterNameProvider nameProvider)
 		{
 			throw new NotSupportedException("Conversions should only occur in selects");
 		}

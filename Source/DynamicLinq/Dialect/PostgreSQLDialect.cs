@@ -1,4 +1,4 @@
-﻿namespace Brawndo.DynamicLinq.Dialect
+﻿namespace DynamicLinq.Dialect
 {
 	public class PostgreSQLDialect : SQLDialect { }
 }

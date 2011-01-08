@@ -1,7 +1,7 @@
 ﻿using System;
-using Brawndo.DynamicLinq.Dialect;
+using DynamicLinq.Dialect;
 
-namespace Brawndo.DynamicLinq.ClauseItems
+namespace DynamicLinq.ClauseItems
 {
 	internal class SimpleOperator
 	{

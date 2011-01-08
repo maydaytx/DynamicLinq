@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Brawndo.DynamicLinq.Dialect;
+using DynamicLinq.Collections;
+using DynamicLinq.Dialect;
 
-namespace Brawndo.DynamicLinq.ClauseItems
+namespace DynamicLinq.ClauseItems
 {
 	public class NullComparisonOperation : ClauseItem
 	{
@@ -15,9 +16,9 @@ namespace Brawndo.DynamicLinq.ClauseItems
 			this.item = item;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters)
+		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters, ParameterNameProvider nameProvider)
 		{
-			LinkedListStringBuilder builder = item.BuildClause(dialect, parameters);
+			LinkedListStringBuilder builder = item.BuildClause(dialect, parameters, nameProvider);
 
 			if (compareEqualToNull)
 				dialect.CompareEqualToNull(builder);

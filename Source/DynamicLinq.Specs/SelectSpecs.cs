@@ -1,30 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DynamicLinq.Databases;
 using Machine.Specifications;
 
-namespace Brawndo.DynamicLinq
+namespace DynamicLinq
 {
 	public class When_selecting_a_single_column
 	{
-		private static dynamic db;
+		private static DB db;
 		private static IList<string> results;
 
 		Establish context = () =>
 		{
-			db = SQLite.GetDB
-			(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256));
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] TEXT)");
 
-INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
-INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Name2');
-INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
-			);
+			db.Insert(
+				new {Id = 1, Name = "Name1"},
+				new {Id = 2, Name = "Name2"},
+				new {Id = 3, Name = "Name3"})
+				.Into(x => x.Table);
 		};
 
 		Because of = () =>
 		{
-			results = (from record in (object)db.Table
+			results = (from record in db.Query(x => x.Table)
 					   select record.Name).Cast<string>().ToList();
 		};
 
@@ -41,24 +41,23 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 
 	public class When_selecting_and_explicitly_casting_a_single_column
 	{
-		private static dynamic db;
+		private static DB db;
 		private static Exception exception;
 
 		Establish context = () =>
 		{
-			db = SQLite.GetDB
-			(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256));
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] TEXT)");
 
-INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
-INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Name2');
-INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
-			);
+			db.Insert(
+				new {Id = 1, Name = "Name1"},
+				new {Id = 2, Name = "Name2"},
+				new {Id = 3, Name = "Name3"})
+				.Into(x => x.Table);
 		};
 
 		Because of = () =>
 		{
-			exception = Catch.Exception(() => (from record in (object)db.Table
+			exception = Catch.Exception(() => (from record in db.Query(x => x.Table)
 											   select (int)record.Id).ToList());
 		};
 
@@ -68,24 +67,23 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 
 	public class When_selecting_and_explicitly_converting_a_single_column
 	{
-		private static dynamic db;
+		private static DB db;
 		private static IList<int> results;
 
 		Establish context = () =>
 		{
-			db = SQLite.GetDB
-			(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256));
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] TEXT)");
 
-INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
-INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Name2');
-INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
-			);
+			db.Insert(
+				new {Id = 1, Name = "Name1"},
+				new {Id = 2, Name = "Name2"},
+				new {Id = 3, Name = "Name3"})
+				.Into(x => x.Table);
 		};
 
 		Because of = () =>
 		{
-			results = (from record in (object)db.Table
+			results = (from record in db.Query(x => x.Table)
 					   select record.Id.To<int>()).Cast<int>().ToList();
 		};
 
@@ -95,24 +93,23 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 
 	public class When_selecting_and_explicitly_converting_a_single_column_that_can_be_null
 	{
-		private static dynamic db;
+		private static DB db;
 		private static IList<int?> results;
 
 		Establish context = () =>
 		{
-			db = SQLite.GetDB
-			(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Value] INTEGER);
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Value] INTEGER)");
 
-INSERT INTO [Table] ([Id]) VALUES (1);
-INSERT INTO [Table] ([Id], [Value]) VALUES (2, 1);
-INSERT INTO [Table] ([Id]) VALUES (3);"
-			);
+			db.Insert(
+				new {Id = 1},
+				new {Id = 2, Value = 1},
+				new {Id = 3})
+				.Into(x => x.Table);
 		};
 
 		Because of = () =>
 		{
-			results = (from record in (object)db.Table
+			results = (from record in db.Query(x => x.Table)
 					   select record.Value.To<int?>()).Cast<int?>().ToList();
 		};
 
@@ -129,24 +126,23 @@ INSERT INTO [Table] ([Id]) VALUES (3);"
 
 	public class When_selecting_an_expression_without_a_supplied_name
 	{
-		private static dynamic db;
+		private static DB db;
 		private static IList<string> results;
 
 		Establish context = () =>
 		{
-			db = SQLite.GetDB
-			(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [FirstName] VARCHAR(256), [LastName] VARCHAR(256));
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [FirstName] TEXT, [LastName] TEXT)");
 
-INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (1, 'First1', 'Last1');
-INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (2, 'First2', 'Last2');
-INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3');"
-			);
+			db.Insert(
+				new {Id = 1, FirstName = "First1", LastName = "Last1"},
+				new {Id = 2, FirstName = "First2", LastName = "Last2"},
+				new {Id = 3, FirstName = "First3", LastName = "Last3"})
+				.Into(x => x.Table);
 		};
 
 		Because of = () =>
 		{
-			results = (from record in (object)db.Table
+			results = (from record in db.Query(x => x.Table)
 					   select "" + record.FirstName + " " + record.LastName).Cast<string>().ToList();
 		};
 
@@ -163,24 +159,23 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3'
 
 	public class When_selecting_all_columns
 	{
-		private static dynamic db;
+		private static DB db;
 		private static IList<dynamic> results;
 
 		Establish context = () =>
 		{
-			db = SQLite.GetDB
-			(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256));
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] TEXT)");
 
-INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
-INSERT INTO [Table] ([Id], [Name]) VALUES (2, 'Name2');
-INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
-			);
+			db.Insert(
+				new {Id = 1, Name = "Name1"},
+				new {Id = 2, Name = "Name2"},
+				new {Id = 3, Name = "Name3"})
+				.Into(x => x.Table);
 		};
 
 		Because of = () =>
 		{
-			results = (from record in (object)db.Table
+			results = (from record in db.Query(x => x.Table)
 					   select record).ToList();
 		};
 
@@ -196,31 +191,27 @@ INSERT INTO [Table] ([Id], [Name]) VALUES (3, 'Name3');"
 
 		It should_retrieve_3_records = () =>
 			results.Count.ShouldEqual(3);
-
-		It should_retrieve_2_columns = () =>
-			((object)results[0]).GetType().GetProperties().Length.ShouldEqual(2);
 	}
 
 	public class When_selecting_specific_columns
 	{
-		private static dynamic db;
+		private static DB db;
 		private static IList<dynamic> results;
 
 		Establish context = () =>
 		{
-			db = SQLite.GetDB
-			(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [FirstName] VARCHAR(256), [LastName] VARCHAR(256));
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [FirstName] TEXT, [LastName] TEXT)");
 
-INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (1, 'First1', 'Last1');
-INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (2, 'First2', 'Last2');
-INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3');"
-			);
+			db.Insert(
+				new {Id = 1, FirstName = "First1", LastName = "Last1"},
+				new {Id = 2, FirstName = "First2", LastName = "Last2"},
+				new {Id = 3, FirstName = "First3", LastName = "Last3"})
+				.Into(x => x.Table);
 		};
 
 		Because of = () =>
 		{
-			results = (from record in (object)db.Table
+			results = (from record in db.Query(x => x.Table)
 					   select new { record.Id, record.FirstName }).ToList();
 		};
 
@@ -236,31 +227,27 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3'
 
 		It should_retrieve_3_records = () =>
 			results.Count.ShouldEqual(3);
-
-		It should_retrieve_2_columns = () =>
-			((object)results[0]).GetType().GetProperties().Length.ShouldEqual(2);
 	}
 
 	public class When_selecting_specific_columns_where_one_can_be_null
 	{
-		private static dynamic db;
+		private static DB db;
 		private static IList<dynamic> results;
 
 		Establish context = () =>
 		{
-			db = SQLite.GetDB
-			(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Value] INTEGER, [Name] VARCHAR(256));
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Value] INTEGER, [Name] TEXT)");
 
-INSERT INTO [Table] ([Id], [Name]) VALUES (1, 'Name1');
-INSERT INTO [Table] ([Id], [Value], [Name]) VALUES (2, 1, 'Name2');
-INSERT INTO [Table] ([Id], [Value], [Name]) VALUES (3, 3, 'Name3');"
-			);
+			db.Insert(
+				new {Id = 1, Name = "Name1"},
+				new {Id = 2, Value = 1, Name = "Name2"},
+				new {Id = 3, Value = 3, Name = "Name3"})
+				.Into(x => x.Table);
 		};
 
 		Because of = () =>
 		{
-			results = (from record in (object)db.Table
+			results = (from record in db.Query(x => x.Table)
 					   select new { record.Id, record.Value, record.Name }).ToList();
 		};
 
@@ -283,7 +270,7 @@ INSERT INTO [Table] ([Id], [Value], [Name]) VALUES (3, 3, 'Name3');"
 
 	public class When_selecting_specific_columns_and_explicitly_converting_one
 	{
-		private static dynamic db;
+		private static DB db;
 		private static IList<dynamic> results;
 
 		public enum Status
@@ -295,20 +282,19 @@ INSERT INTO [Table] ([Id], [Value], [Name]) VALUES (3, 3, 'Name3');"
 
 		Establish context = () =>
 		{
-			db = SQLite.GetDB
-			(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256), [Status] INTEGER);
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] TEXT, [Status] INTEGER)");
 
-INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (1, 'Name1', 1);
-INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (2, 'Name2', 2);
-INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (3, 'Name3', 3);"
-			);
+			db.Insert(
+				new {Id = 1, Name = "Name1", Status = 1},
+				new {Id = 2, Name = "Name2", Status = 2},
+				new {Id = 3, Name = "Name3", Status = 3})
+				.Into(x => x.Table);
 		};
 
 		Because of = () =>
 		{
-			results = (from record in (object)db.Table
-					   select new { record.Id, Status = record.Status.To<Status>() }).ToList();
+			results = (from record in db.Query(x => x.Table)
+			           select new {record.Id, Status = record.Status.To<Status>()}).ToList();
 		};
 
 		It should_retrieve_the_records = () =>
@@ -323,32 +309,28 @@ INSERT INTO [Table] ([Id], [Name], [Status]) VALUES (3, 'Name3', 3);"
 
 		It should_retrieve_3_records = () =>
 			results.Count.ShouldEqual(3);
-
-		It should_retrieve_2_columns = () =>
-			((object)results[0]).GetType().GetProperties().Length.ShouldEqual(2);
 	}
 
 	public class When_selecting_an_expression_with_a_supplied_name
 	{
-		private static dynamic db;
+		private static DB db;
 		private static IList<dynamic> results;
 
 		Establish context = () =>
 		{
-			db = SQLite.GetDB
-			(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [FirstName] VARCHAR(256), [LastName] VARCHAR(256));
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [FirstName] TEXT, [LastName] TEXT)");
 
-INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (1, 'First1', 'Last1');
-INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (2, 'First2', 'Last2');
-INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3');"
-			);
+			db.Insert(
+				new {Id = 1, FirstName = "First1", LastName = "Last1"},
+				new {Id = 2, FirstName = "First2", LastName = "Last2"},
+				new {Id = 3, FirstName = "First3", LastName = "Last3"})
+				.Into(x => x.Table);
 		};
 
 		Because of = () =>
 		{
-			results = (from record in (object)db.Table
-					   select new { Name = "" + record.FirstName + " " + record.LastName }).ToList();
+			results = (from record in db.Query(x => x.Table)
+			           select new {Name = "" + record.FirstName + " " + record.LastName}).ToList();
 		};
 
 		It should_retrieve_the_records = () =>
@@ -360,37 +342,31 @@ INSERT INTO [Table] ([Id], [FirstName], [LastName]) VALUES (3, 'First3', 'Last3'
 
 		It should_retrieve_3_records = () =>
 			results.Count.ShouldEqual(3);
-
-		It should_retrieve_1_columns = () =>
-			((object)results[0]).GetType().GetProperties().Length.ShouldEqual(1);
 	}
 
 	public class When_selecting_a_byte_array
 	{
-		private static dynamic db;
+		private static DB db;
 		private static IList<dynamic> results;
 		private static byte[] bytes;
 
 		Establish context = () =>
 		{
-			bytes = new byte[] { 0xDE, 0xAD, 0xBE, 0xEF };
+			bytes = new byte[] {0xDE, 0xAD, 0xBE, 0xEF};
 
-			db = SQLite.GetDB
-			(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Data] VARBINARY(256));
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Data] BLOB)");
 
-INSERT INTO [Table] ([Id], [Data]) VALUES (1, @p0);"
-			, new Tuple<string, object>("@p0", bytes));
+			db.Insert(new {Id = 1, Data = bytes}).Into(x => x.Table);
 		};
 
 		Because of = () =>
 		{
-			results = (from record in (object)db.Table
-					   select new { record.Data }).ToList();
+			results = (from record in db.Query(x => x.Table)
+			           select new {record.Data}).ToList();
 		};
 
 		It should_retrieve_the_records = () =>
-			((byte[])results[0].Data).SequenceEqual(bytes);
+			((byte[]) results[0].Data).SequenceEqual(bytes);
 
 		It should_retrieve_1_record = () =>
 			results.Count.ShouldEqual(1);

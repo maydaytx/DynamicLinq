@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Brawndo.DynamicLinq.Dialect;
+using DynamicLinq.Collections;
+using DynamicLinq.Dialect;
 
-namespace Brawndo.DynamicLinq.ClauseItems
+namespace DynamicLinq.ClauseItems
 {
 	public class ConcatenationOperation : ClauseItem
 	{
@@ -15,11 +16,11 @@ namespace Brawndo.DynamicLinq.ClauseItems
 			this.rightItem = rightItem;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters)
+		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters, ParameterNameProvider nameProvider)
 		{
-			LinkedListStringBuilder builder = leftItem.BuildClause(dialect, parameters);
+			LinkedListStringBuilder builder = leftItem.BuildClause(dialect, parameters, nameProvider);
 
-			dialect.ConcatenateStrings(builder, rightItem.BuildClause(dialect, parameters));
+			dialect.ConcatenateStrings(builder, rightItem.BuildClause(dialect, parameters, nameProvider));
 
 			return builder;
 		}

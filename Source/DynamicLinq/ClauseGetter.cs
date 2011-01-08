@@ -1,7 +1,7 @@
 ﻿using System.Dynamic;
-using Brawndo.DynamicLinq.ClauseItems;
+using DynamicLinq.ClauseItems;
 
-namespace Brawndo.DynamicLinq
+namespace DynamicLinq
 {
 	public class ClauseGetter : DynamicObject
 	{

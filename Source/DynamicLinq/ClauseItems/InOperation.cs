@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Brawndo.DynamicLinq.Dialect;
+using DynamicLinq.Collections;
+using DynamicLinq.Dialect;
 
-namespace Brawndo.DynamicLinq.ClauseItems
+namespace DynamicLinq.ClauseItems
 {
 	public class InOperation : ClauseItem
 	{
@@ -16,11 +17,11 @@ namespace Brawndo.DynamicLinq.ClauseItems
 			this.list = list;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters)
+		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters, ParameterNameProvider nameProvider)
 		{
-			LinkedListStringBuilder builder = item.BuildClause(dialect, parameters);
+			LinkedListStringBuilder builder = item.BuildClause(dialect, parameters, nameProvider);
 
-			dialect.InOperator(builder, Enumerable.Select(list, listItem => listItem.BuildClause(dialect, parameters)));
+			dialect.InOperator(builder, Enumerable.Select(list, listItem => listItem.BuildClause(dialect, parameters, nameProvider)));
 
 			return builder;
 		}

@@ -1,30 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DynamicLinq.Databases;
 using Machine.Specifications;
 
-namespace Brawndo.DynamicLinq
+namespace DynamicLinq
 {
 	public class When_inserting_records_into_a_table
 	{
-		private static dynamic db;
+		private static DB db;
 		private static IList<dynamic> results;
 
 		Establish context = () =>
 		{
-			db = SQLite.GetDB
-				(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256), [Value] INTEGER);"
-				);
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] TEXT, [Value] INTEGER)");
 		};
 
 		Because of = () =>
 		{
-			((object) db.Table).Insert(
+			db.Insert(
 				new {Name = "Name1", Value = 1},
 				new {Name = "Name2", Value = 2},
-				new {Name = "Name3", Value = 3});
+				new {Name = "Name3", Value = 3})
+				.Into(x => x.Table);
 
-			results = (from record in (object) db.Table
+			results = (from record in db.Query(x => x.Table)
 			           select record).ToList();
 		};
 
@@ -47,30 +46,28 @@ namespace Brawndo.DynamicLinq
 	
 	public class When_updating_records_in_a_table
 	{
-		private static dynamic db;
+		private static DB db;
 		private static IList<dynamic> results;
 
 		Establish context = () =>
 		{
-			db = SQLite.GetDB
-				(
-@"CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] VARCHAR(256), [Value] INTEGER);"
-				);
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] TEXT, [Value] INTEGER)");
+			
+			db.Insert(
+				new {Name = "Name1", Value = 1},
+				new {Name = "Name2", Value = 2},
+				new {Name = "Name3", Value = 3})
+				.Into(x => x.Table);
 		};
 
 		Because of = () =>
 		{
-			((object) db.Table).Insert(
-				new {Name = "Name1", Value = 1},
-				new {Name = "Name2", Value = 2},
-				new {Name = "Name3", Value = 3});
-
-			((object) db.Table)
-				.Update(new {Name = "Name4", Value = 4})
+			db.Update(x => x.Table)
+				.Set(new {Name = "Name4", Value = 4})
 				.Where(t => t.Id == 1)
 				.Execute();
 
-			results = (from record in (object) db.Table
+			results = (from record in db.Query(x => x.Table)
 			           select record).ToList();
 		};
 

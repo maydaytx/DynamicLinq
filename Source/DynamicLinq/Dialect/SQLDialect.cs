@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using DynamicLinq.Collections;
 
-namespace Brawndo.DynamicLinq.Dialect
+namespace DynamicLinq.Dialect
 {
 	public abstract class SQLDialect
 	{
