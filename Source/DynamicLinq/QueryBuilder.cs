@@ -116,7 +116,7 @@ namespace DynamicLinq
 
 			if (joinSQL != null)
 			{
-				sql.Append("INNER JOIN [" + joinTableName + "] ON ");
+				sql.Append(" INNER JOIN [" + joinTableName + "] ON ");
 
 				sql.Append(joinSQL);
 			}
