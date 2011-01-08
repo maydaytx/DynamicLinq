@@ -273,7 +273,7 @@ namespace DynamicLinq
 		private static DB db;
 		private static IList<dynamic> results;
 
-		public enum Status
+		private enum Status
 		{
 			SomeStatus1 = 1,
 			SomeStatus2 = 2,

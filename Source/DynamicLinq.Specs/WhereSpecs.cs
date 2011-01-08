@@ -233,7 +233,7 @@ namespace DynamicLinq
 		private static DB db;
 		private static IList<long> results;
 
-		public enum Status
+		private enum Status
 		{
 			SomeStatus1 = 1,
 			SomeStatus2 = 2,
@@ -245,9 +245,9 @@ namespace DynamicLinq
 			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] TEXT, [Status] INTEGER)");
 
 			db.Insert(
-				new {Id = 1, Name = "Sal", Status = 1},
-				new {Id = 2, Name = "Bob", Status = 2},
-				new {Id = 3, Name = "Joe", Status = 3},
+				new {Id = 1, Name = "Sal", Status = Status.SomeStatus1},
+				new {Id = 2, Name = "Bob", Status = Status.SomeStatus2},
+				new {Id = 3, Name = "Joe", Status = Status.SomeStatus3},
 				new {Id = 4, Name = "Sally"})
 				.Into(x => x.Table);
 		};
@@ -270,13 +270,6 @@ namespace DynamicLinq
 	{
 		private static DB db;
 		private static IList<long> results;
-
-		public enum Status
-		{
-			SomeStatus1 = 1,
-			SomeStatus2 = 2,
-			SomeStatus3 = 3
-		}
 
 		Establish context = () =>
 		{
