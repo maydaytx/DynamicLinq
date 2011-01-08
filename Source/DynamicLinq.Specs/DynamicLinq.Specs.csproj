@@ -52,6 +52,9 @@
   <ItemGroup>
     <Compile Include="Databases\SQLite.cs" />
     <Compile Include="InsertUpdateSpecs.cs" />
+    <Compile Include="JoinSpecs.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SelectSpecs.cs" />
     <Compile Include="WhereSpecs.cs" />

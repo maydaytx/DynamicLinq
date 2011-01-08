@@ -46,7 +46,7 @@ namespace DynamicLinq.Collections
 				values.Add(name, value);
 		}
 
-		public void GetObjectData(SerializationInfo info, StreamingContext context)
+		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			foreach (KeyValuePair<string, object> value in values)
 				info.AddValue(value.Key, value.Value);

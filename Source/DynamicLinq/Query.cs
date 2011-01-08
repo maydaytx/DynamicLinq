@@ -7,6 +7,7 @@ namespace DynamicLinq
 	public class Query : IEnumerable<object>
 	{
 		private readonly DB db;
+		private readonly string tableName;
 		private readonly ClauseGetter clauseGetter;
 		private readonly QueryBuilder queryBuilder;
 		private readonly IList<object> results;
@@ -15,12 +16,13 @@ namespace DynamicLinq
 		internal Query(DB db, string tableName)
 		{
 			this.db = db;
+			this.tableName = tableName;
 			clauseGetter = new ClauseGetter(tableName);
 			queryBuilder = new QueryBuilder(db, tableName);
 			results = new List<object>();
 		}
 
-		public IEnumerable<object> Select(Func<dynamic, object> selector)
+		public IEnumerable<dynamic> Select(Func<dynamic, object> selector)
 		{
 			queryBuilder.WithSelector(selector, clauseGetter);
 
@@ -34,17 +36,9 @@ namespace DynamicLinq
 			return this;
 		}
 
-		public IEnumerable<object> Join(Query inner, Func<dynamic, object> outerKeySelector, Func<dynamic, object> innerKeySelector, Func<dynamic, dynamic, object> resultSelector)
+		public IEnumerable<dynamic> Join(Query inner, Func<dynamic, object> outerKeySelector, Func<dynamic, object> innerKeySelector, Func<dynamic, dynamic, object> resultSelector)
 		{
-			//ClauseItem outerKey = outerKeySelector(clauseGetter) as ClauseItem;
-			//ClauseItem innerKey = innerKeySelector(inner.clauseGetter) as ClauseItem;
-
-			//if (outerKey == null || innerKey == null)
-			//    throw new ArgumentException("Invalid key selector");
-
-			//queryBuilder.WithJoin(inner.tableName, new BinaryOperation(SimpleOperator.Equal, outerKey, innerKey));
-
-			//object obj = resultSelector(clauseGetter, inner.clauseGetter);
+			queryBuilder.WithJoin(outerKeySelector, innerKeySelector, resultSelector, clauseGetter, inner.clauseGetter, inner.tableName);
 
 			return this;
 		}

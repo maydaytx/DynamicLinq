@@ -17,6 +17,10 @@ namespace DynamicLinq
 		private IDictionary<string, Type> selectConversions;
 		private bool isSingleColumnSelect;
 
+		private string joinTableName;
+		private LinkedListStringBuilder joinSQL;
+		private IList<Tuple<string, object>> joinParameters;
+
 		private ClauseItem whereClause;
 
 		internal QueryBuilder(DB db, string tableName)
@@ -44,12 +48,77 @@ namespace DynamicLinq
 
 		internal void WithSelector(Func<dynamic, object> selector, ClauseGetter clauseGetter)
 		{
+			object obj = selector(clauseGetter);
+
+			SetSelectSQL(obj, clauseGetter);
+		}
+
+		public void WithJoin(Func<object, object> outerKeySelector, Func<object, object> innerKeySelector, Func<object, object, object> resultSelector, ClauseGetter outerClauseGetter, ClauseGetter innerClauseGetter, string innerTableName)
+		{
+			ClauseItem outerKey = outerKeySelector(outerClauseGetter) as ClauseItem;
+			ClauseItem innerKey = innerKeySelector(innerClauseGetter) as ClauseItem;
+
+			if (ReferenceEquals(outerKey, null) || ReferenceEquals(innerKey, null))
+				throw new ArgumentException("Invalid key selector");
+
+			joinTableName = innerTableName;
+			joinParameters = new List<Tuple<string, object>>();
+
+			ClauseItem joinClause = new BinaryOperation(SimpleOperator.Equal, outerKey, innerKey);
+			
+			joinSQL = joinClause.BuildClause(db.Dialect, joinParameters, nameProvider);
+
+			object obj = resultSelector(outerClauseGetter, innerClauseGetter);
+
+			SetSelectSQL(obj, outerClauseGetter, innerClauseGetter);
+		}
+
+		internal QueryInfo Build()
+		{
+			LinkedListStringBuilder sql = "SELECT ";
+
+			if (selectSQL == null)
+			{
+				isSingleColumnSelect = false;
+
+				selectSQL = "*";
+			}
+
+			sql.Append(selectSQL);
+
+			sql.Append(" FROM [" + tableName + "]");
+
+			if (joinSQL != null)
+			{
+				sql.Append("INNER JOIN [" + joinTableName + "] ON ");
+
+				sql.Append(joinSQL);
+			}
+
+			IList<Tuple<string, object>> whereParameters = new List<Tuple<string, object>>();
+
+			if (!ReferenceEquals(whereClause, null))
+			{
+				LinkedListStringBuilder whereSQL = whereClause.BuildClause(db.Dialect, whereParameters, nameProvider);
+
+				sql.Append(" WHERE ");
+				sql.Append(whereSQL);
+			}
+
+			IEnumerable<Tuple<string, object>> parameters = selectParameters.Concat(whereParameters);
+
+			if (joinSQL != null)
+				parameters = parameters.Concat(joinParameters);
+
+			return new QueryInfo(sql.ToString(), parameters, selectConversions, isSingleColumnSelect);
+		}
+
+		private void SetSelectSQL(object obj, params ClauseGetter[] clauseGetters)
+		{
 			selectParameters = new List<Tuple<string, object>>();
 			selectConversions = new Dictionary<string, Type>();
 
-			object obj = selector(clauseGetter);
-
-			if (obj == clauseGetter)
+			if (Enumerable.Contains(clauseGetters, obj))
 			{
 				isSingleColumnSelect = false;
 
@@ -84,34 +153,6 @@ namespace DynamicLinq
 					selectSQL.Append(" AS [" + property.Item1 + "]");
 				}
 			}
-		}
-
-		internal QueryInfo Build()
-		{
-			LinkedListStringBuilder sql = "SELECT ";
-
-			if (selectSQL == null)
-			{
-				isSingleColumnSelect = false;
-
-				selectSQL = "*";
-			}
-
-			sql.Append(selectSQL);
-
-			IList<Tuple<string, object>> whereParameters = new List<Tuple<string, object>>();
-
-			sql.Append(" FROM [" + tableName + "]");
-
-			if (!ReferenceEquals(whereClause, null))
-			{
-				LinkedListStringBuilder whereSQL = whereClause.BuildClause(db.Dialect, whereParameters, nameProvider);
-
-				sql.Append(" WHERE ");
-				sql.Append(whereSQL);
-			}
-
-			return new QueryInfo(sql.ToString(), selectParameters.Concat(whereParameters), selectConversions, isSingleColumnSelect);
 		}
 
 		private static ClauseItem CheckForConversion(Tuple<string, ClauseItem> property, IDictionary<string, Type> conversions)
