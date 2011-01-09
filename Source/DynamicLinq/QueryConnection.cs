@@ -89,7 +89,7 @@ namespace DynamicLinq
 				Type dataType;
 
 				if (useFirstConversion)
-					dataType = Enumerable.First(queryInfo.SelectConversions.Values);
+					dataType = queryInfo.SelectConversions.Values.First();
 				else
 					dataType = queryInfo.SelectConversions[name];
 

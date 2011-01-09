@@ -22,7 +22,7 @@ namespace DynamicLinq
 		private LinkedListStringBuilder joinSQL;
 		private IList<Tuple<string, object>> joinParameters;
 
-		private IList<Tuple<ClauseItem, ListSortDirection>> orderByClauses;
+		private readonly IList<Tuple<ClauseItem, ListSortDirection>> orderByClauses;
 
 		private ClauseItem whereClause;
 
@@ -185,7 +185,7 @@ namespace DynamicLinq
 			selectParameters = new List<Tuple<string, object>>();
 			selectConversions = new Dictionary<string, Type>();
 
-			if (Enumerable.Contains(clauseGetters, obj))
+			if (clauseGetters.Contains(obj))
 			{
 				isSingleColumnSelect = false;
 
@@ -224,7 +224,7 @@ namespace DynamicLinq
 
 		private static IEnumerable<Tuple<string, ClauseItem>> GetClauseItems(object obj)
 		{
-			return Enumerable.Select(obj.GetType().GetProperties(), p => new Tuple<string, ClauseItem>(p.Name, (ClauseItem) p.GetValue(obj, null)));
+			return obj.GetType().GetProperties().Select(p => new Tuple<string, ClauseItem>(p.Name, (ClauseItem) p.GetValue(obj, null)));
 		}
 
 		private static ClauseItem CheckForConversion(Tuple<string, ClauseItem> property, IDictionary<string, Type> conversions)
