@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace DynamicLinq
 {
@@ -31,7 +32,7 @@ namespace DynamicLinq
 
 		public Query Where(Func<dynamic, object> predicate)
 		{
-			queryBuilder.WithWhereClause(predicate, clauseGetter);
+			queryBuilder.AddWhereClause(predicate, clauseGetter);
 
 			return this;
 		}
@@ -39,6 +40,20 @@ namespace DynamicLinq
 		public IEnumerable<dynamic> Join(Query inner, Func<dynamic, object> outerKeySelector, Func<dynamic, object> innerKeySelector, Func<dynamic, dynamic, object> resultSelector)
 		{
 			queryBuilder.WithJoin(outerKeySelector, innerKeySelector, resultSelector, clauseGetter, inner.clauseGetter, inner.tableName);
+
+			return this;
+		}
+
+		public Query OrderBy(Func<dynamic, object> keySelector)
+		{
+			queryBuilder.AddOrderBy(keySelector, clauseGetter, ListSortDirection.Ascending);
+
+			return this;
+		}
+
+		public Query OrderByDescending(Func<dynamic, object> keySelector)
+		{
+			queryBuilder.AddOrderBy(keySelector, clauseGetter, ListSortDirection.Descending);
 
 			return this;
 		}

@@ -55,6 +55,7 @@
     <Compile Include="JoinSpecs.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="OrderBySpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SelectSpecs.cs" />
     <Compile Include="WhereSpecs.cs" />

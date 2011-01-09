@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using DynamicLinq.ClauseItems;
 using DynamicLinq.Collections;
@@ -21,6 +22,8 @@ namespace DynamicLinq
 		private LinkedListStringBuilder joinSQL;
 		private IList<Tuple<string, object>> joinParameters;
 
+		private IList<Tuple<ClauseItem, ListSortDirection>> orderByClauses;
+
 		private ClauseItem whereClause;
 
 		internal QueryBuilder(DB db, string tableName)
@@ -29,9 +32,10 @@ namespace DynamicLinq
 			this.tableName = tableName;
 
 			nameProvider = new ParameterNameProvider();
+			orderByClauses = new List<Tuple<ClauseItem, ListSortDirection>>();
 		}
 
-		internal void WithWhereClause(Func<dynamic, object> predicate, ClauseGetter clauseGetter)
+		internal void AddWhereClause(Func<dynamic, object> predicate, ClauseGetter clauseGetter)
 		{
 			object obj = predicate(clauseGetter);
 
@@ -99,12 +103,27 @@ namespace DynamicLinq
 			SetSelectSQL(obj, outerClauseGetter, innerClauseGetter);
 		}
 
+		internal void AddOrderBy(Func<object, object> keySelector, ClauseGetter clauseGetter, ListSortDirection sortDirection)
+		{
+			object obj = keySelector(clauseGetter);
+
+			if (!(obj is ClauseItem))
+				throw new ArgumentException("Invalid key selector");
+
+			ClauseItem clauseItem = (ClauseItem) obj;
+
+			orderByClauses.Add(new Tuple<ClauseItem, ListSortDirection>(clauseItem, sortDirection));
+		}
+
 		internal QueryInfo Build()
 		{
 			LinkedListStringBuilder sql = "SELECT ";
 
 			if (selectSQL == null)
 			{
+				selectParameters = new List<Tuple<string, object>>();
+				selectConversions = new Dictionary<string, Type>();
+
 				isSingleColumnSelect = false;
 
 				selectSQL = "*";
@@ -131,7 +150,29 @@ namespace DynamicLinq
 				sql.Append(whereSQL);
 			}
 
-			IEnumerable<Tuple<string, object>> parameters = selectParameters.Concat(whereParameters);
+			IList<Tuple<string, object>> orderByParameters = new List<Tuple<string, object>>();
+			bool first = true;
+
+			if (orderByClauses.Count > 0)
+			{
+				sql.Append(" ORDER BY ");
+
+				foreach (Tuple<ClauseItem, ListSortDirection> orderByClause in orderByClauses)
+				{
+					if (first)
+						first = false;
+					else
+						sql.Append(", ");
+
+					LinkedListStringBuilder orderBySQL = orderByClause.Item1.BuildClause(db.Dialect, orderByParameters, nameProvider);
+
+					sql.Append(orderBySQL);
+					sql.Append(" ");
+					sql.Append(orderByClause.Item2 == ListSortDirection.Ascending ? "ASC" : "DESC");
+				}
+			}
+
+			IEnumerable<Tuple<string, object>> parameters = selectParameters.Concat(whereParameters).Concat(orderByParameters);
 
 			if (joinSQL != null)
 				parameters = parameters.Concat(joinParameters);
