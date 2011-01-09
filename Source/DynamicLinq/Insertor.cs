@@ -26,6 +26,8 @@ namespace DynamicLinq
 
 			using (IDbConnection connection = db.GetConnection())
 			{
+				connection.Open();
+
 				using (IDbCommand command = connection.CreateCommand())
 				{
 					LinkedListStringBuilder sql = new LinkedListStringBuilder();

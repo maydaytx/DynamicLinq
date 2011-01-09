@@ -37,14 +37,6 @@ CREATE TABLE [Table2] ([Id] INTEGER PRIMARY KEY, [Name] TEXT);"
 			results = (from record1 in db.Query(x => x.Table1)
 					   join record2 in db.Query(x => x.Table2) on record1.Table2Id equals record2.Id
 					   select new {Name1 = record1.Name, Name2 = record2.Name}).ToList();
-
-			//results = (from record1 in db.Query(x => x.Table1)
-			//           join record2 in db.Query(x => x.Table2) on new {record1.Table2Id, record1.WTF} equals new {record2.Id, record2.WTF}
-			//           select new {Name1 = record1.Name, Name2 = record2.Name}).ToList();
-
-			//results = (db.Query(x => x.Table1)
-			//    .Join(db.Query(x => x.Table2), record1 => record1.Table2Id, record2 => record2.Id, (record1, record2) => new {record1, record2})
-			//    .Join(db.Query(x => x.Table3), join1 => join1.record1.Table3Id, record3 => record3.Id, (join1, record3) => new {Name1 = join1.record1.Name, Name2 = join1.record2.Name, Name3 = record3.Name})).ToList();
 		};
 
 		It should_retrieve_the_records = () =>

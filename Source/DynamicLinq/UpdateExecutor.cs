@@ -39,6 +39,8 @@ namespace DynamicLinq
 		{
 			using (IDbConnection connection = db.GetConnection())
 			{
+				connection.Open();
+
 				using (IDbCommand command = connection.CreateCommand())
 				{
 					PropertyInfo[] properties = row.GetType().GetProperties();

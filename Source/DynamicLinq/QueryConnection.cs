@@ -18,6 +18,8 @@ namespace DynamicLinq
 			this.queryInfo = queryInfo;
 
 			connection = db.GetConnection();
+			connection.Open();
+
 			command = connection.CreateCommand();
 
 			command.CommandText = queryInfo.SQL;

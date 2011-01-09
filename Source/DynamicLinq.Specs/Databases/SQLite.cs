@@ -11,8 +11,6 @@ namespace DynamicLinq.Databases
 		{
 			UndisposableMemoryDatabase connection = new UndisposableMemoryDatabase();
 
-			connection.Open();
-
 			using (IDbCommand command = connection.CreateCommand())
 			{
 				command.CommandText = sql;
@@ -36,6 +34,8 @@ namespace DynamicLinq.Databases
 				//var info = new System.IO.FileInfo("Test.s3db");
 				//if (info.Exists) info.Delete();
 				//connection = new SQLiteConnection("Data source=Test.s3db");
+
+				connection.Open();
 			}
 
 			public void Dispose() { }
@@ -67,7 +67,7 @@ namespace DynamicLinq.Databases
 
 			public void Open()
 			{
-				connection.Open();
+				
 			}
 
 			public string ConnectionString
