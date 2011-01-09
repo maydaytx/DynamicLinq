@@ -5,7 +5,7 @@ using System.Linq;
 using DynamicLinq.ClauseItems;
 using DynamicLinq.Collections;
 
-namespace DynamicLinq
+namespace DynamicLinq.Queries
 {
 	public class QueryBuilder
 	{
@@ -35,7 +35,7 @@ namespace DynamicLinq
 			orderByClauses = new List<Tuple<ClauseItem, ListSortDirection>>();
 		}
 
-		internal void AddWhereClause(Func<dynamic, object> predicate, ClauseGetter clauseGetter)
+		internal void AddWhereClause(Func<object, object> predicate, ClauseGetter clauseGetter)
 		{
 			object obj = predicate(clauseGetter);
 
@@ -50,7 +50,7 @@ namespace DynamicLinq
 				whereClause = new BinaryOperation(SimpleOperator.And, whereClause, clauseItem);
 		}
 
-		internal void WithSelector(Func<dynamic, object> selector, ClauseGetter clauseGetter)
+		internal void WithSelector(Func<object, object> selector, ClauseGetter clauseGetter)
 		{
 			object obj = selector(clauseGetter);
 

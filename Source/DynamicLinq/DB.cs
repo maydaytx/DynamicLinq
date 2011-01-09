@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using DynamicLinq.Dialect;
+using DynamicLinq.Queries;
 
 namespace DynamicLinq
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DynamicLinq
+namespace DynamicLinq.Queries
 {
 	internal class QueryInfo
 	{

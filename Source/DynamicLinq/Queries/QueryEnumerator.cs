@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace DynamicLinq
+namespace DynamicLinq.Queries
 {
 	internal class QueryEnumerator : IEnumerator<object>
 	{

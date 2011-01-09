@@ -3,7 +3,7 @@ using System.Data;
 using System.Linq;
 using DynamicLinq.Collections;
 
-namespace DynamicLinq
+namespace DynamicLinq.Queries
 {
 	internal class QueryConnection : IDisposable
 	{

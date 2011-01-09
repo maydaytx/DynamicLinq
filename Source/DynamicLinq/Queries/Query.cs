@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace DynamicLinq
+namespace DynamicLinq.Queries
 {
 	public class Query : IEnumerable<object>
 	{
