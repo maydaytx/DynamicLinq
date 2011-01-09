@@ -11,8 +11,6 @@ namespace DynamicLinq.Queries
 		private readonly string tableName;
 		private readonly ClauseGetter clauseGetter;
 		private readonly QueryBuilder queryBuilder;
-		private readonly IList<object> results;
-		private QueryConnection queryConnection;
 
 		internal Query(DB db, string tableName)
 		{
@@ -20,7 +18,6 @@ namespace DynamicLinq.Queries
 			this.tableName = tableName;
 			clauseGetter = new ClauseGetter(tableName);
 			queryBuilder = new QueryBuilder(db, tableName);
-			results = new List<object>();
 		}
 
 		public IEnumerable<dynamic> Select(Func<dynamic, object> selector)
@@ -60,10 +57,7 @@ namespace DynamicLinq.Queries
 
 		IEnumerator<object> IEnumerable<object>.GetEnumerator()
 		{
-			if (queryConnection == null)
-				queryConnection = new QueryConnection(db, queryBuilder.Build());
-
-			return new QueryEnumerator(results, queryConnection);
+			return new QueryEnumerator(db, queryBuilder.Build());
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

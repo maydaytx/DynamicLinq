@@ -10,14 +10,17 @@ namespace DynamicLinq.Queries
 		private readonly QueryConnection queryConnection;
 		private int currentPos;
 
-		internal QueryEnumerator(IList<object> results, QueryConnection queryConnection)
+		internal QueryEnumerator(DB db, QueryInfo queryInfo)
 		{
-			this.results = results;
-			this.queryConnection = queryConnection;
+			results = new List<object>();
+			queryConnection = queryConnection = new QueryConnection(db, queryInfo);
 			currentPos = -1;
 		}
 
-		void IDisposable.Dispose() { }
+		void IDisposable.Dispose()
+		{
+			((IDisposable) queryConnection).Dispose();
+		}
 
 		bool IEnumerator.MoveNext()
 		{
