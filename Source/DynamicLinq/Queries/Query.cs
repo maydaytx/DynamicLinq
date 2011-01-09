@@ -17,7 +17,7 @@ namespace DynamicLinq.Queries
 			this.db = db;
 			this.tableName = tableName;
 			clauseGetter = new ClauseGetter(tableName);
-			queryBuilder = new QueryBuilder(db, tableName);
+			queryBuilder = new QueryBuilder(db.Dialect, tableName);
 		}
 
 		public ExtendedQuery Select(Func<dynamic, object> selector)
@@ -55,15 +55,22 @@ namespace DynamicLinq.Queries
 			return this;
 		}
 
-		//public int Count()
-		//{
-			
-		//}
+		public int Count()
+		{
+			return (int) LongCount();
+		}
 
-		//public long LongCount()
-		//{
+		public long LongCount()
+		{
+			queryBuilder.SetCountSelector();
 
-		//}
+			using (IEnumerator<object> enumerator = new QueryEnumerator(db, queryBuilder.Build()))
+			{
+				enumerator.MoveNext();
+
+				return Convert.ToInt64(enumerator.Current);
+			}
+		}
 
 		public ExtendedQuery Skip(int count)
 		{

@@ -156,5 +156,10 @@ namespace DynamicLinq.Dialect
 			else if (takeCount != null)
 				builder.Append(takeCount.ToString());
 		}
+
+		public virtual string CountColumn
+		{
+			get { return "COUNT(*)"; }
+		}
 	}
 }

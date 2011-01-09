@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace DynamicLinq.Queries
@@ -14,15 +15,22 @@ namespace DynamicLinq.Queries
 			this.queryBuilder = queryBuilder;
 		}
 
-		//public int Count()
-		//{
-			
-		//}
+		public int Count()
+		{
+			return (int)LongCount();
+		}
 
-		//public long LongCount()
-		//{
-			
-		//}
+		public long LongCount()
+		{
+			queryBuilder.SetCountSelector();
+
+			using (IEnumerator<object> enumerator = new QueryEnumerator(db, queryBuilder.Build()))
+			{
+				enumerator.MoveNext();
+
+				return Convert.ToInt64(enumerator.Current);
+			}
+		}
 
 		public ExtendedQuery Skip(int count)
 		{

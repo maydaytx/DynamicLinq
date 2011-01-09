@@ -1,4 +1,5 @@
 ﻿using System;
+using DynamicLinq.Collections;
 
 namespace DynamicLinq.Dialect
 {
@@ -14,7 +15,7 @@ namespace DynamicLinq.Dialect
 			get { return "yyyy-MM-dd HH:mm:ss.fff"; }
 		}
 
-		public override void SkipTakeClause(Collections.LinkedListStringBuilder builder, int? skipCount, int? takeCount)
+		public override void SkipTakeClause(LinkedListStringBuilder builder, int? skipCount, int? takeCount)
 		{
 			throw new NotSupportedException("Skip() and Take() are not supported currently for SQL Server");
 		}

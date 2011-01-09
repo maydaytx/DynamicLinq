@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CountSpecs.cs" />
     <Compile Include="Databases\SQLite.cs" />
     <Compile Include="InsertUpdateSpecs.cs" />
     <Compile Include="JoinSpecs.cs">

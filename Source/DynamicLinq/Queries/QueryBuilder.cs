@@ -4,19 +4,23 @@ using System.ComponentModel;
 using System.Linq;
 using DynamicLinq.ClauseItems;
 using DynamicLinq.Collections;
+using DynamicLinq.Dialect;
 
 namespace DynamicLinq.Queries
 {
 	public class QueryBuilder
 	{
-		private readonly DB db;
+		private readonly SQLDialect dialect;
 		private readonly string tableName;
 		private readonly ParameterNameProvider nameProvider;
-
+		
 		private LinkedListStringBuilder selectSQL;
 		private IList<Tuple<string, object>> selectParameters;
 		private IDictionary<string, Type> selectConversions;
 		private bool isSingleColumnSelect;
+		private bool isCountSelector;
+
+		private ClauseItem whereClause;
 
 		private string joinTableName;
 		private LinkedListStringBuilder joinSQL;
@@ -24,14 +28,12 @@ namespace DynamicLinq.Queries
 
 		private readonly IList<Tuple<ClauseItem, ListSortDirection>> orderByClauses;
 
-		private ClauseItem whereClause;
-
 		private int? skipCount;
 		private int? takeCount;
 
-		internal QueryBuilder(DB db, string tableName)
+		internal QueryBuilder(SQLDialect dialect, string tableName)
 		{
-			this.db = db;
+			this.dialect = dialect;
 			this.tableName = tableName;
 
 			nameProvider = new ParameterNameProvider();
@@ -99,7 +101,7 @@ namespace DynamicLinq.Queries
 				}
 			}
 			
-			joinSQL = joinClause.BuildClause(db.Dialect, joinParameters, nameProvider);
+			joinSQL = joinClause.BuildClause(dialect, joinParameters, nameProvider);
 
 			object obj = resultSelector(outerClauseGetter, innerClauseGetter);
 
@@ -131,11 +133,25 @@ namespace DynamicLinq.Queries
 			takeCount = count;
 		}
 
+		internal void SetCountSelector()
+		{
+			isCountSelector = true;
+		}
+
 		internal QueryInfo Build()
 		{
 			LinkedListStringBuilder sql = "SELECT ";
 
-			if (selectSQL == null)
+			if (isCountSelector)
+			{
+				selectParameters = new List<Tuple<string, object>>();
+				selectConversions = new Dictionary<string, Type>();
+
+				isSingleColumnSelect = true;
+
+				selectSQL = dialect.CountColumn;
+			}
+			else if (selectSQL == null)
 			{
 				selectParameters = new List<Tuple<string, object>>();
 				selectConversions = new Dictionary<string, Type>();
@@ -160,7 +176,7 @@ namespace DynamicLinq.Queries
 
 			if (!ReferenceEquals(whereClause, null))
 			{
-				LinkedListStringBuilder whereSQL = whereClause.BuildClause(db.Dialect, whereParameters, nameProvider);
+				LinkedListStringBuilder whereSQL = whereClause.BuildClause(dialect, whereParameters, nameProvider);
 
 				sql.Append(" WHERE ");
 				sql.Append(whereSQL);
@@ -180,7 +196,7 @@ namespace DynamicLinq.Queries
 					else
 						sql.Append(", ");
 
-					LinkedListStringBuilder orderBySQL = orderByClause.Item1.BuildClause(db.Dialect, orderByParameters, nameProvider);
+					LinkedListStringBuilder orderBySQL = orderByClause.Item1.BuildClause(dialect, orderByParameters, nameProvider);
 
 					sql.Append(orderBySQL);
 					sql.Append(" ");
@@ -189,7 +205,7 @@ namespace DynamicLinq.Queries
 			}
 
 			if (skipCount != null || takeCount != null)
-				db.Dialect.SkipTakeClause(sql, skipCount, takeCount);
+				dialect.SkipTakeClause(sql, skipCount, takeCount);
 
 			IEnumerable<Tuple<string, object>> parameters = selectParameters.Concat(whereParameters).Concat(orderByParameters);
 
@@ -216,7 +232,7 @@ namespace DynamicLinq.Queries
 
 				ClauseItem item = CheckForConversion(new Tuple<string, ClauseItem>("Column", (ClauseItem) obj), selectConversions);
 
-				selectSQL = item.BuildClause(db.Dialect, selectParameters, nameProvider);
+				selectSQL = item.BuildClause(dialect, selectParameters, nameProvider);
 			}
 			else
 			{
@@ -235,7 +251,7 @@ namespace DynamicLinq.Queries
 
 					ClauseItem item = CheckForConversion(property, selectConversions);
 
-					selectSQL.Append(item.BuildClause(db.Dialect, selectParameters, nameProvider));
+					selectSQL.Append(item.BuildClause(dialect, selectParameters, nameProvider));
 					selectSQL.Append(" AS [" + property.Item1 + "]");
 				}
 			}
