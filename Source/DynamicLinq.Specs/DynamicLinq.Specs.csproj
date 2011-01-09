@@ -58,6 +58,7 @@
     <Compile Include="OrderBySpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SelectSpecs.cs" />
+    <Compile Include="SkipTakeSpecs.cs" />
     <Compile Include="WhereSpecs.cs" />
   </ItemGroup>
   <ItemGroup>

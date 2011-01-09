@@ -21,7 +21,7 @@ namespace DynamicLinq.ClauseItems
 		{
 			LinkedListStringBuilder builder = item.BuildClause(dialect, parameters, nameProvider);
 
-			dialect.InOperator(builder, Enumerable.Select(list, listItem => listItem.BuildClause(dialect, parameters, nameProvider)));
+			dialect.InOperator(builder, list.Select(listItem => listItem.BuildClause(dialect, parameters, nameProvider)));
 
 			return builder;
 		}

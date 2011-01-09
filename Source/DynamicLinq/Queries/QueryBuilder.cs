@@ -26,6 +26,9 @@ namespace DynamicLinq.Queries
 
 		private ClauseItem whereClause;
 
+		private int? skipCount;
+		private int? takeCount;
+
 		internal QueryBuilder(DB db, string tableName)
 		{
 			this.db = db;
@@ -115,6 +118,19 @@ namespace DynamicLinq.Queries
 			orderByClauses.Add(new Tuple<ClauseItem, ListSortDirection>(clauseItem, sortDirection));
 		}
 
+		internal void AddSkip(int count)
+		{
+			if (skipCount != null)
+				skipCount += count;
+			else
+				skipCount = count;
+		}
+
+		internal void SetTake(int count)
+		{
+			takeCount = count;
+		}
+
 		internal QueryInfo Build()
 		{
 			LinkedListStringBuilder sql = "SELECT ";
@@ -171,6 +187,9 @@ namespace DynamicLinq.Queries
 					sql.Append(orderByClause.Item2 == ListSortDirection.Ascending ? "ASC" : "DESC");
 				}
 			}
+
+			if (skipCount != null || takeCount != null)
+				db.Dialect.SkipTakeClause(sql, skipCount, takeCount);
 
 			IEnumerable<Tuple<string, object>> parameters = selectParameters.Concat(whereParameters).Concat(orderByParameters);
 

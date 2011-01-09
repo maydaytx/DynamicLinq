@@ -20,11 +20,11 @@ namespace DynamicLinq.Queries
 			queryBuilder = new QueryBuilder(db, tableName);
 		}
 
-		public IEnumerable<dynamic> Select(Func<dynamic, object> selector)
+		public ExtendedQuery Select(Func<dynamic, object> selector)
 		{
 			queryBuilder.WithSelector(selector, clauseGetter);
 
-			return this;
+			return new ExtendedQuery(db, queryBuilder);
 		}
 
 		public Query Where(Func<dynamic, object> predicate)
@@ -34,11 +34,11 @@ namespace DynamicLinq.Queries
 			return this;
 		}
 
-		public IEnumerable<dynamic> Join(Query inner, Func<dynamic, object> outerKeySelector, Func<dynamic, object> innerKeySelector, Func<dynamic, dynamic, object> resultSelector)
+		public ExtendedQuery Join(Query inner, Func<dynamic, object> outerKeySelector, Func<dynamic, object> innerKeySelector, Func<dynamic, dynamic, object> resultSelector)
 		{
 			queryBuilder.WithJoin(outerKeySelector, innerKeySelector, resultSelector, clauseGetter, inner.clauseGetter, inner.tableName);
 
-			return this;
+			return new ExtendedQuery(db, queryBuilder);
 		}
 
 		public Query OrderBy(Func<dynamic, object> keySelector)
@@ -51,6 +51,30 @@ namespace DynamicLinq.Queries
 		public Query OrderByDescending(Func<dynamic, object> keySelector)
 		{
 			queryBuilder.AddOrderBy(keySelector, clauseGetter, ListSortDirection.Descending);
+
+			return this;
+		}
+
+		//public int Count()
+		//{
+			
+		//}
+
+		//public long LongCount()
+		//{
+
+		//}
+
+		public ExtendedQuery Skip(int count)
+		{
+			queryBuilder.AddSkip(count);
+
+			return new ExtendedQuery(db, queryBuilder);
+		}
+
+		public IEnumerable<dynamic> Take(int count)
+		{
+			queryBuilder.SetTake(count);
 
 			return this;
 		}

@@ -41,6 +41,7 @@ namespace DynamicLinq
 		It should_retrieve_3_records = () =>
 			results.Count.ShouldEqual(3);
 	}
+
 	public class When_ordering_by_a_column_descending
 	{
 		private static DB db;

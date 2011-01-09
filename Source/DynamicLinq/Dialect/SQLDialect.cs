@@ -118,6 +118,8 @@ namespace DynamicLinq.Dialect
 
 		public virtual void InOperator(LinkedListStringBuilder builder, IEnumerable<LinkedListStringBuilder> list)
 		{
+			builder.Append(" IN (");
+
 			bool first = true;
 
 			foreach (LinkedListStringBuilder item in list)
@@ -141,6 +143,18 @@ namespace DynamicLinq.Dialect
 		public virtual string ParameterPrefix
 		{
 			get { return "@"; }
+		}
+
+		public virtual void SkipTakeClause(LinkedListStringBuilder builder, int? skipCount, int? takeCount)
+		{
+			builder.Append(" LIMIT ");
+
+			if (skipCount != null && takeCount != null)
+				builder.Append(skipCount + ", " + takeCount);
+			else if (skipCount != null)
+				builder.Append(skipCount + ", " + int.MaxValue);
+			else if (takeCount != null)
+				builder.Append(takeCount.ToString());
 		}
 	}
 }
