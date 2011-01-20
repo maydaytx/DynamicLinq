@@ -17,7 +17,7 @@ namespace DynamicLinq.Queries
 
 		public int Count()
 		{
-			return (int)LongCount();
+			return (int) LongCount();
 		}
 
 		public long LongCount()
