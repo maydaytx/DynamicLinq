@@ -1,9 +1,9 @@
 ﻿using System;
 using DynamicLinq.Collections;
 
-namespace DynamicLinq.Dialect
+namespace DynamicLinq.Dialects
 {
-	public class SQLServerDialect : SQLDialect
+	public class SQLServerDialect : Dialect
 	{
 		public override string ConcatenateOperator
 		{

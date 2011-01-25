@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using DynamicLinq.Collections;
-using DynamicLinq.Dialect;
+﻿using DynamicLinq.Collections;
 
 namespace DynamicLinq.ClauseItems
 {
@@ -18,14 +15,14 @@ namespace DynamicLinq.ClauseItems
 			this.rightItem = rightItem;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters, ParameterNameProvider nameProvider)
+		internal override LinkedListStringBuilder BuildClause(Dialect dialect, ParameterCollection parameters)
 		{
-			LinkedListStringBuilder builder = leftItem.BuildClause(dialect, parameters, nameProvider);
+			LinkedListStringBuilder builder = leftItem.BuildClause(dialect, parameters);
 
 			builder.Append(" ");
 			builder.Append(@operator.GetOperator(dialect));
 			builder.Append(" ");
-			builder.Append(rightItem.BuildClause(dialect, parameters, nameProvider));
+			builder.Append(rightItem.BuildClause(dialect, parameters));
 
 			return builder;
 		}

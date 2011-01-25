@@ -32,7 +32,7 @@ namespace DynamicLinq
 				{
 					LinkedListStringBuilder sql = new LinkedListStringBuilder();
 
-					IList<Tuple<string, object>> parameters = new List<Tuple<string, object>>();
+					ParameterCollection parameters = new ParameterCollection(new ParameterNameProvider(db.Dialect));
 
 					foreach (object row in rows)
 					{
@@ -54,7 +54,7 @@ namespace DynamicLinq
 								}
 
 								columns.Append(string.Format("[{0}]", properties[i].Name));
-								values.Append(constant.BuildClause(db.Dialect, parameters, new ParameterNameProvider()));
+								values.Append(constant.BuildClause(db.Dialect, parameters));
 							}
 
 							sql.Append(string.Format("INSERT INTO [{0}] (", tableName));
@@ -65,12 +65,12 @@ namespace DynamicLinq
 						}
 					}
 
-					foreach (Tuple<string, object> parameter in parameters)
+					foreach (Parameter parameter in parameters)
 					{
 						IDbDataParameter dataParameter = command.CreateParameter();
 
-						dataParameter.ParameterName = parameter.Item1;
-						dataParameter.Value = parameter.Item2;
+						dataParameter.ParameterName = parameter.Name;
+						dataParameter.Value = parameter.Value;
 
 						command.Parameters.Add(dataParameter);
 					}

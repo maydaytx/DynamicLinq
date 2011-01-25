@@ -52,12 +52,12 @@
     <Compile Include="ClauseItems\SimpleOperator.cs" />
     <Compile Include="ClauseItems\UnaryOperation.cs" />
     <Compile Include="DB.cs" />
-    <Compile Include="Dialect\MySQLDialect.cs" />
-    <Compile Include="Dialect\PostgreSQLDialect.cs" />
-    <Compile Include="Dialect\SQLDialect.cs" />
-    <Compile Include="Dialect\SQLiteDialect.cs" />
-    <Compile Include="Dialect\SQLServerDialect.cs" />
     <Compile Include="Collections\DynamicBag.cs" />
+    <Compile Include="Dialect.cs" />
+    <Compile Include="Dialects\MySQLDialect.cs" />
+    <Compile Include="Dialects\PostgreSQLDialect.cs" />
+    <Compile Include="Dialects\SQLiteDialect.cs" />
+    <Compile Include="Dialects\SQLServerDialect.cs" />
     <Compile Include="Insertor.cs" />
     <Compile Include="Collections\LinkedListStringBuilder.cs" />
     <Compile Include="NameGetter.cs" />

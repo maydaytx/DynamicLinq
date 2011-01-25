@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SQLite;
-using DynamicLinq.Dialect;
+using DynamicLinq.Dialects;
 
 namespace DynamicLinq.Databases
 {

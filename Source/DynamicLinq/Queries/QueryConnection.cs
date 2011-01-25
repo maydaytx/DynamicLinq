@@ -24,12 +24,12 @@ namespace DynamicLinq.Queries
 
 			command.CommandText = queryInfo.SQL;
 
-			foreach (Tuple<string, object> parameter in queryInfo.Parameters)
+			foreach (Parameter parameter in queryInfo.Parameters)
 			{
 				IDbDataParameter dataParameter = command.CreateParameter();
 
-				dataParameter.ParameterName = parameter.Item1;
-				dataParameter.Value = parameter.Item2;
+				dataParameter.ParameterName = parameter.Name;
+				dataParameter.Value = parameter.Value;
 
 				command.Parameters.Add(dataParameter);
 			}

@@ -1,8 +1,8 @@
 ﻿using DynamicLinq.Collections;
 
-namespace DynamicLinq.Dialect
+namespace DynamicLinq.Dialects
 {
-	public class MySQLDialect : SQLDialect
+	public class MySQLDialect : Dialect
 	{
 		public override void ConcatenateStrings(LinkedListStringBuilder builder, LinkedListStringBuilder appendee)
 		{

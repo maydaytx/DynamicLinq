@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using DynamicLinq.Collections;
-using DynamicLinq.Dialect;
 
 namespace DynamicLinq.ClauseItems
 {
@@ -9,7 +7,7 @@ namespace DynamicLinq.ClauseItems
 	{
 		internal ClauseItem() { }
 
-		internal abstract LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters, ParameterNameProvider nameProvider);
+		internal abstract LinkedListStringBuilder BuildClause(Dialect dialect, ParameterCollection parameters);
 
 		#region implicit conversions
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using DynamicLinq.Dialect;
 using DynamicLinq.Queries;
 
 namespace DynamicLinq
@@ -8,19 +7,19 @@ namespace DynamicLinq
 	public class DB
 	{
 		private readonly Func<IDbConnection> getConnection;
-		private readonly SQLDialect dialect;
+		private readonly Dialect dialect;
 
 		internal Func<IDbConnection> GetConnection
 		{
 			get { return getConnection; }
 		}
 
-		internal SQLDialect Dialect
+		internal Dialect Dialect
 		{
 			get { return dialect; }
 		}
 
-		public DB(Func<IDbConnection> getConnection, SQLDialect dialect)
+		public DB(Func<IDbConnection> getConnection, Dialect dialect)
 		{
 			this.getConnection = getConnection;
 			this.dialect = dialect;

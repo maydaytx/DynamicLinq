@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DynamicLinq.Collections;
 
-namespace DynamicLinq.Dialect
+namespace DynamicLinq
 {
-	public abstract class SQLDialect
+	public abstract class Dialect
 	{
 		public virtual string AddOperator
 		{
@@ -160,6 +161,30 @@ namespace DynamicLinq.Dialect
 		public virtual string CountColumn
 		{
 			get { return "COUNT(*)"; }
+		}
+
+		public virtual string Constant(object value, ParameterCollection parameters)
+		{
+			if (value is string || value is byte[] || value.GetType().IsEnum)
+			{
+				return parameters.Add(value);
+			}
+			else if (value is char)
+			{
+				return "'" + value + "'";
+			}
+			else if (value is DateTime)
+			{
+				return "'" + ((DateTime) value).ToString(DateTimeFormat) + "'";
+			}
+			else if (value is bool)
+			{
+				return (bool) value ? "1" : "0";
+			}
+			else
+			{
+				return value.ToString();
+			}
 		}
 	}
 }

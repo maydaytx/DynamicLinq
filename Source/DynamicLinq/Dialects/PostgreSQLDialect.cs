@@ -1,6 +1,6 @@
-﻿namespace DynamicLinq.Dialect
+﻿namespace DynamicLinq.Dialects
 {
-	public class PostgreSQLDialect : SQLDialect
+	public class PostgreSQLDialect : Dialect
 	{
 		public override void SkipTakeClause(Collections.LinkedListStringBuilder builder, int? skipCount, int? takeCount)
 		{

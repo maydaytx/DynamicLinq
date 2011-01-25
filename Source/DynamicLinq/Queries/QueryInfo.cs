@@ -6,7 +6,7 @@ namespace DynamicLinq.Queries
 	internal class QueryInfo
 	{
 		private readonly string sql;
-		private readonly IEnumerable<Tuple<string, object>> parameters;
+		private readonly IEnumerable<Parameter> parameters;
 		private readonly IDictionary<string, Type> selectConversions;
 		private readonly bool isSingleColumnSelect;
 
@@ -15,7 +15,7 @@ namespace DynamicLinq.Queries
 			get { return sql; }
 		}
 
-		internal IEnumerable<Tuple<string, object>> Parameters
+		internal IEnumerable<Parameter> Parameters
 		{
 			get { return parameters; }
 		}
@@ -30,7 +30,7 @@ namespace DynamicLinq.Queries
 			get { return isSingleColumnSelect; }
 		}
 
-		internal QueryInfo(string sql, IEnumerable<Tuple<string, object>> parameters, IDictionary<string, Type> selectConversions, bool isSingleColumnSelect)
+		internal QueryInfo(string sql, IEnumerable<Parameter> parameters, IDictionary<string, Type> selectConversions, bool isSingleColumnSelect)
 		{
 			this.sql = sql;
 			this.parameters = parameters;

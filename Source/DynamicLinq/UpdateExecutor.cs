@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using DynamicLinq.ClauseItems;
@@ -49,8 +48,7 @@ namespace DynamicLinq
 					{
 						LinkedListStringBuilder sql = new LinkedListStringBuilder(string.Format("UPDATE [{0}] SET ", tableName));
 
-						IList<Tuple<string, object>> parameters = new List<Tuple<string, object>>();
-						ParameterNameProvider nameProvider = new ParameterNameProvider();
+						ParameterCollection parameters = new ParameterCollection(new ParameterNameProvider(db.Dialect));
 
 						for (int i = 0; i < properties.Length; ++i)
 						{
@@ -59,21 +57,21 @@ namespace DynamicLinq
 							if (i > 0)
 								sql.Append(", ");
 
-							sql.Append(string.Format("[{0}] = {1}", properties[i].Name, constant.BuildClause(db.Dialect, parameters, nameProvider)));
+							sql.Append(string.Format("[{0}] = {1}", properties[i].Name, constant.BuildClause(db.Dialect, parameters)));
 						}
 
 						if (whereClause != null)
 						{
 							sql.Append(" WHERE ");
-							sql.Append(whereClause.BuildClause(db.Dialect, parameters, nameProvider));
+							sql.Append(whereClause.BuildClause(db.Dialect, parameters));
 						}
 
-						foreach (Tuple<string, object> parameter in parameters)
+						foreach (Parameter parameter in parameters)
 						{
 							IDbDataParameter dataParameter = command.CreateParameter();
 
-							dataParameter.ParameterName = parameter.Item1;
-							dataParameter.Value = parameter.Item2;
+							dataParameter.ParameterName = parameter.Name;
+							dataParameter.Value = parameter.Value;
 
 							command.Parameters.Add(dataParameter);
 						}

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using DynamicLinq.Collections;
-using DynamicLinq.Dialect;
 
 namespace DynamicLinq.ClauseItems
 {
@@ -26,7 +24,7 @@ namespace DynamicLinq.ClauseItems
 			this.type = type;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(SQLDialect dialect, IList<Tuple<string, object>> parameters, ParameterNameProvider nameProvider)
+		internal override LinkedListStringBuilder BuildClause(Dialect dialect, ParameterCollection parameters)
 		{
 			throw new NotSupportedException("Conversions should only occur in selects");
 		}

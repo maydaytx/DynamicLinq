@@ -1,5 +1,4 @@
 ﻿using System;
-using DynamicLinq.Dialect;
 
 namespace DynamicLinq.ClauseItems
 {
@@ -25,14 +24,14 @@ namespace DynamicLinq.ClauseItems
 		internal static readonly SimpleOperator GreaterThanOrEqual = new SimpleOperator(dialect => dialect.GreaterThanOrEqualOperator);
 		internal static readonly SimpleOperator Like = new SimpleOperator(dialect => dialect.LikeOperator);
 
-		private readonly Func<SQLDialect, string> getOperator;
+		private readonly Func<Dialect, string> getOperator;
 
-		internal Func<SQLDialect, string> GetOperator
+		internal Func<Dialect, string> GetOperator
 		{
 			get { return getOperator; }
 		}
 
-		private SimpleOperator(Func<SQLDialect, string> getOperator)
+		private SimpleOperator(Func<Dialect, string> getOperator)
 		{
 			this.getOperator = getOperator;
 		}
