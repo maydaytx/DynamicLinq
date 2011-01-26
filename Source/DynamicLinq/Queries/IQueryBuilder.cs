@@ -1,17 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using DynamicLinq.ClauseItems;
 
 namespace DynamicLinq.Queries
 {
 	public interface IQueryBuilder
 	{
-		void AddWhereClause(Func<object, object> predicate, ClauseGetter clauseGetter);
-		void WithSelector(Func<object, object> selector, ClauseGetter clauseGetter);
-		void WithJoin(Func<object, object> outerKeySelector, Func<object, object> innerKeySelector, Func<object, object, object> resultSelector, ClauseGetter outerClauseGetter, ClauseGetter innerClauseGetter, string innerTableName);
-		void AddOrderBy(Func<object, object> keySelector, ClauseGetter clauseGetter, ListSortDirection sortDirection);
+		void AddWhereClause(ClauseItem clauseItem);
+		void WithSelector(IEnumerable<Tuple<string, ClauseItem>> selections, SelectType selectType, IDictionary<string, Type> conversions);
+		void WithJoin(ClauseItem joinClause, string innerTableName);
+		void AddOrderBy(ClauseItem clauseItem, ListSortDirection sortDirection);
 		void AddSkip(int count);
 		void SetTake(int count);
 		void SetCountSelector();
 		QueryInfo Build();
+	}
+
+	public enum SelectType
+	{
+		All,
+		Single,
+		Multiple
 	}
 }

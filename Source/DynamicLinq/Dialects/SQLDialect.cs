@@ -204,7 +204,7 @@ namespace DynamicLinq.Dialects
 
 		public IQueryBuilder GetQueryBuilder(string tableName)
 		{
-			return new QueryBuilder(this, tableName);
+			return new SQLQueryBuilder(this, tableName);
 		}
 
 		public QueryConnection GetConnection(QueryInfo queryInfo)

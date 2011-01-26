@@ -8,7 +8,7 @@ using DynamicLinq.Dialects;
 
 namespace DynamicLinq.Queries
 {
-	internal class QueryBuilder : IQueryBuilder
+	internal class SQLQueryBuilder : IQueryBuilder
 	{
 		private readonly SQLDialect dialect;
 		private readonly string tableName;
@@ -31,7 +31,7 @@ namespace DynamicLinq.Queries
 		private int? skipCount;
 		private int? takeCount;
 
-		internal QueryBuilder(SQLDialect dialect, string tableName)
+		internal SQLQueryBuilder(SQLDialect dialect, string tableName)
 		{
 			this.dialect = dialect;
 			this.tableName = tableName;
@@ -40,83 +40,60 @@ namespace DynamicLinq.Queries
 			orderByClauses = new List<Tuple<ClauseItem, ListSortDirection>>();
 		}
 
-		void IQueryBuilder.AddWhereClause(Func<object, object> predicate, ClauseGetter clauseGetter)
+		void IQueryBuilder.AddWhereClause(ClauseItem clauseItem)
 		{
-			object obj = predicate(clauseGetter);
-
-			if (!(obj is ClauseItem))
-				throw new ArgumentException("Invalid predicate");
-
-			ClauseItem clauseItem = (ClauseItem) obj;
-
 			if (ReferenceEquals(whereClause, null))
 				whereClause = clauseItem;
 			else
 				whereClause = new BinaryOperation(SimpleOperator.And, whereClause, clauseItem);
 		}
 
-		void IQueryBuilder.WithSelector(Func<object, object> selector, ClauseGetter clauseGetter)
+		void IQueryBuilder.WithSelector(IEnumerable<Tuple<string, ClauseItem>> selections, SelectType selectType, IDictionary<string, Type> conversions)
 		{
-			object obj = selector(clauseGetter);
+			selectParameters = new ParameterCollection(nameProvider);
+			selectConversions = conversions;
 
-			SetSelectSQL(obj, clauseGetter);
+			switch (selectType)
+			{
+				case SelectType.All:
+					isSingleColumnSelect = false;
+					selectSQL = "*";
+					break;
+				case SelectType.Single:
+					isSingleColumnSelect = true;
+					selectSQL = selections.First().Item2.BuildClause(dialect, selectParameters);
+					break;
+				case SelectType.Multiple:
+					isSingleColumnSelect = false;
+
+					selectSQL = new LinkedListStringBuilder();
+
+					bool notFirst = false;
+
+					foreach (Tuple<string, ClauseItem> property in selections)
+					{
+						if (notFirst)
+							selectSQL.Append(", ");
+						else
+							notFirst = true;
+
+						selectSQL.Append(property.Item2.BuildClause(dialect, selectParameters));
+						selectSQL.Append(" AS [" + property.Item1 + "]");
+					}
+					break;
+			}
 		}
 
-		void IQueryBuilder.WithJoin(Func<object, object> outerKeySelector, Func<object, object> innerKeySelector, Func<object, object, object> resultSelector, ClauseGetter outerClauseGetter, ClauseGetter innerClauseGetter, string innerTableName)
+		void IQueryBuilder.WithJoin(ClauseItem joinClause, string innerTableName)
 		{
-			object outerKey = outerKeySelector(outerClauseGetter);
-			object innerKey = innerKeySelector(innerClauseGetter);
-
 			joinTableName = innerTableName;
 			joinParameters = new ParameterCollection(nameProvider);
-			ClauseItem joinClause;
-
-			if (outerKey == outerClauseGetter || innerKey == innerClauseGetter)
-			{
-				throw new ArgumentException("Invalid key selector");
-			}
-			else if (outerKey is ClauseItem && innerKey is ClauseItem)
-			{
-				joinClause = new BinaryOperation(SimpleOperator.Equal, (ClauseItem) outerKey, (ClauseItem) innerKey);
-			}
-			else
-			{
-				ClauseItem[] outerKeyProperties = GetClauseItems(outerKey).Select(property => property.Item2).ToArray();
-				ClauseItem[] innerKeyProperties = GetClauseItems(innerKey).Select(property => property.Item2).ToArray();
-
-				if (outerKeyProperties.Length == 0 || innerKeyProperties.Length == 0)
-					throw new ArgumentException("Invalid key selector");
-
-				if (outerKeyProperties.Length != innerKeyProperties.Length)
-					throw new ArgumentException("Unequal number of selectors");
-
-				joinSQL = new LinkedListStringBuilder();
-
-				joinClause = new BinaryOperation(SimpleOperator.Equal, outerKeyProperties[0], innerKeyProperties[0]);
-
-				for (int i = 1; i < outerKeyProperties.Length; ++i)
-				{
-					ClauseItem additionalClause = new BinaryOperation(SimpleOperator.Equal, outerKeyProperties[i], innerKeyProperties[i]);
-					joinClause = new BinaryOperation(SimpleOperator.And, joinClause, additionalClause);
-				}
-			}
 			
 			joinSQL = joinClause.BuildClause(dialect, joinParameters);
-
-			object obj = resultSelector(outerClauseGetter, innerClauseGetter);
-
-			SetSelectSQL(obj, outerClauseGetter, innerClauseGetter);
 		}
 
-		void IQueryBuilder.AddOrderBy(Func<object, object> keySelector, ClauseGetter clauseGetter, ListSortDirection sortDirection)
+		void IQueryBuilder.AddOrderBy(ClauseItem clauseItem, ListSortDirection sortDirection)
 		{
-			object obj = keySelector(clauseGetter);
-
-			if (!(obj is ClauseItem))
-				throw new ArgumentException("Invalid key selector");
-
-			ClauseItem clauseItem = (ClauseItem) obj;
-
 			orderByClauses.Add(new Tuple<ClauseItem, ListSortDirection>(clauseItem, sortDirection));
 		}
 
@@ -213,69 +190,6 @@ namespace DynamicLinq.Queries
 				parameters = parameters.Concat(joinParameters);
 
 			return new QueryInfo(sql.ToString(), parameters, selectConversions, isSingleColumnSelect);
-		}
-
-		private void SetSelectSQL(object obj, params ClauseGetter[] clauseGetters)
-		{
-			selectParameters = new ParameterCollection(nameProvider);
-			selectConversions = new Dictionary<string, Type>();
-
-			if (clauseGetters.Contains(obj))
-			{
-				isSingleColumnSelect = false;
-
-				selectSQL = "*";
-			}
-			else if (obj is ClauseItem)
-			{
-				isSingleColumnSelect = true;
-
-				ClauseItem item = CheckForConversion(new Tuple<string, ClauseItem>("Column", (ClauseItem) obj), selectConversions);
-
-				selectSQL = item.BuildClause(dialect, selectParameters);
-			}
-			else
-			{
-				isSingleColumnSelect = false;
-
-				selectSQL = new LinkedListStringBuilder();
-
-				bool notFirst = false;
-
-				foreach (Tuple<string, ClauseItem> property in GetClauseItems(obj))
-				{
-					if (notFirst)
-						selectSQL.Append(", ");
-					else
-						notFirst = true;
-
-					ClauseItem item = CheckForConversion(property, selectConversions);
-
-					selectSQL.Append(item.BuildClause(dialect, selectParameters));
-					selectSQL.Append(" AS [" + property.Item1 + "]");
-				}
-			}
-		}
-
-		private static IEnumerable<Tuple<string, ClauseItem>> GetClauseItems(object obj)
-		{
-			return obj.GetType().GetProperties().Select(p => new Tuple<string, ClauseItem>(p.Name, (ClauseItem) p.GetValue(obj, null)));
-		}
-
-		private static ClauseItem CheckForConversion(Tuple<string, ClauseItem> property, IDictionary<string, Type> conversions)
-		{
-			ClauseItem item = property.Item2;
-
-			if (item is ConvertOperation)
-			{
-				ConvertOperation convert = (ConvertOperation)item;
-
-				conversions.Add(property.Item1, convert.Type);
-
-				item = convert.Item;
-			}
-
-			return item;
 		}
 	}
 }
