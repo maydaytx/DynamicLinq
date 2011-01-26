@@ -65,10 +65,9 @@
   <ItemGroup>
     <ProjectReference Include="..\DynamicLinq\DynamicLinq.csproj">
       <Project>{F84F5C92-F2A5-4935-B907-7586FE2BDFFF}</Project>
-      <Name>Brawndo.DynamicLinq</Name>
+      <Name>DynamicLinq</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

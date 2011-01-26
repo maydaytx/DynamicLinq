@@ -3,24 +3,25 @@ using System.Data;
 using System.Reflection;
 using DynamicLinq.ClauseItems;
 using DynamicLinq.Collections;
+using DynamicLinq.Dialects;
 
-namespace DynamicLinq
+namespace DynamicLinq.InsertUpdates
 {
-	public class UpdateExecutor
+	public class SQLUpdateExecutor : IUpdateExecutor
 	{
-		private readonly DB db;
+		private readonly SQLDialect dialect;
 		private readonly string tableName;
 		private readonly object row;
 		private ClauseItem whereClause;
 
-		internal UpdateExecutor(DB db, string tableName, object row)
+		internal SQLUpdateExecutor(SQLDialect dialect, string tableName, object row)
 		{
-			this.db = db;
+			this.dialect = dialect;
 			this.tableName = tableName;
 			this.row = row;
 		}
 
-		public UpdateExecutor Where(Func<dynamic, object> predicate)
+		public IUpdateExecutor Where(Func<dynamic, object> predicate)
 		{
 			ClauseGetter clauseGetter = new ClauseGetter(tableName);
 
@@ -36,7 +37,7 @@ namespace DynamicLinq
 
 		public void Execute()
 		{
-			using (IDbConnection connection = db.GetConnection())
+			using (IDbConnection connection = dialect.GetConnection())
 			{
 				connection.Open();
 
@@ -48,7 +49,7 @@ namespace DynamicLinq
 					{
 						LinkedListStringBuilder sql = new LinkedListStringBuilder(string.Format("UPDATE [{0}] SET ", tableName));
 
-						ParameterCollection parameters = new ParameterCollection(new ParameterNameProvider(db.Dialect));
+						ParameterCollection parameters = new ParameterCollection(new ParameterNameProvider(dialect));
 
 						for (int i = 0; i < properties.Length; ++i)
 						{
@@ -57,13 +58,13 @@ namespace DynamicLinq
 							if (i > 0)
 								sql.Append(", ");
 
-							sql.Append(string.Format("[{0}] = {1}", properties[i].Name, constant.BuildClause(db.Dialect, parameters)));
+							sql.Append(string.Format("[{0}] = {1}", properties[i].Name, constant.BuildClause(dialect, parameters)));
 						}
 
 						if (whereClause != null)
 						{
 							sql.Append(" WHERE ");
-							sql.Append(whereClause.BuildClause(db.Dialect, parameters));
+							sql.Append(whereClause.BuildClause(dialect, parameters));
 						}
 
 						foreach (Parameter parameter in parameters)

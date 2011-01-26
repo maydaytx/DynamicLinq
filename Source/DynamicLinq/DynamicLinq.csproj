@@ -53,24 +53,32 @@
     <Compile Include="ClauseItems\UnaryOperation.cs" />
     <Compile Include="DB.cs" />
     <Compile Include="Collections\DynamicBag.cs" />
-    <Compile Include="Dialect.cs" />
     <Compile Include="Dialects\MySQLDialect.cs" />
     <Compile Include="Dialects\PostgreSQLDialect.cs" />
+    <Compile Include="Dialects\SQLDialect.cs" />
     <Compile Include="Dialects\SQLiteDialect.cs" />
     <Compile Include="Dialects\SQLServerDialect.cs" />
-    <Compile Include="Insertor.cs" />
+    <Compile Include="Dialects\IDialect.cs" />
     <Compile Include="Collections\LinkedListStringBuilder.cs" />
+    <Compile Include="InsertUpdates\IInsertor.cs" />
+    <Compile Include="InsertUpdates\IUpdateExecutor.cs" />
+    <Compile Include="InsertUpdates\IUpdator.cs" />
+    <Compile Include="InsertUpdates\SQLInsertor.cs" />
+    <Compile Include="InsertUpdates\SQLUpdateExecutor.cs" />
+    <Compile Include="InsertUpdates\SQLUpdator.cs" />
     <Compile Include="NameGetter.cs" />
+    <Compile Include="Parameter.cs" />
+    <Compile Include="ParameterCollection.cs" />
     <Compile Include="ParameterNameProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\ExtendedQuery.cs" />
+    <Compile Include="Queries\IQueryBuilder.cs" />
     <Compile Include="Queries\Query.cs" />
-    <Compile Include="Queries\QueryBuilder.cs" />
     <Compile Include="Queries\QueryConnection.cs" />
     <Compile Include="Queries\QueryEnumerator.cs" />
     <Compile Include="Queries\QueryInfo.cs" />
-    <Compile Include="UpdateExecutor.cs" />
-    <Compile Include="Updator.cs" />
+    <Compile Include="Queries\SQLQueryBuilder.cs" />
+    <Compile Include="Queries\SQLQueryConnection.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

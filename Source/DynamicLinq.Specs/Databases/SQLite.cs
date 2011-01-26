@@ -20,7 +20,7 @@ namespace DynamicLinq.Databases
 
 			Func<IDbConnection> getConnection = () => connection;
 
-			return new DB(getConnection, new SQLiteDialect());
+			return new DB(new SQLiteDialect(getConnection));
 		}
 
 		private class UndisposableMemoryDatabase : IDbConnection

@@ -1,5 +1,6 @@
 ﻿using System;
 using DynamicLinq.Collections;
+using DynamicLinq.Dialects;
 
 namespace DynamicLinq.ClauseItems
 {
@@ -24,7 +25,7 @@ namespace DynamicLinq.ClauseItems
 			this.type = type;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(Dialect dialect, ParameterCollection parameters)
+		internal override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
 		{
 			throw new NotSupportedException("Conversions should only occur in selects");
 		}

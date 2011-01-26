@@ -1,7 +1,12 @@
-﻿namespace DynamicLinq.Dialects
+﻿using System;
+using System.Data;
+
+namespace DynamicLinq.Dialects
 {
-	public class PostgreSQLDialect : Dialect
+	public class PostgreSQLDialect : SQLDialect
 	{
+		public PostgreSQLDialect(Func<IDbConnection> getConnection) : base(getConnection) { }
+
 		public override void SkipTakeClause(Collections.LinkedListStringBuilder builder, int? skipCount, int? takeCount)
 		{
 			builder.Append(" LIMIT ");

@@ -1,4 +1,5 @@
 ﻿using DynamicLinq.Collections;
+using DynamicLinq.Dialects;
 
 namespace DynamicLinq.ClauseItems
 {
@@ -18,7 +19,7 @@ namespace DynamicLinq.ClauseItems
 			this.name = name;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(Dialect dialect, ParameterCollection parameters)
+		internal override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
 		{
 			return string.Format("[{0}].[{1}]", tableName, name);
 		}

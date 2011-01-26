@@ -1,11 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using DynamicLinq.Collections;
+using DynamicLinq.InsertUpdates;
+using DynamicLinq.Queries;
 
-namespace DynamicLinq
+namespace DynamicLinq.Dialects
 {
-	public abstract class Dialect
+	public abstract class SQLDialect : IDialect
 	{
+		private readonly Func<IDbConnection> getConnection;
+
+		protected SQLDialect(Func<IDbConnection> getConnection)
+		{
+			this.getConnection = getConnection;
+		}
+
 		public virtual string AddOperator
 		{
 			get { return "+"; }
@@ -57,14 +67,14 @@ namespace DynamicLinq
 			get { return "<>"; }
 		}
 
-		public virtual void CompareEqualToNull(LinkedListStringBuilder builder)
+		public virtual string CompareEqualToNull
 		{
-			builder.Append(" IS NULL");
+			get { return " IS NULL"; }
 		}
 
-		public virtual void CompareNotEqualToNull(LinkedListStringBuilder builder)
+		public virtual string CompareNotEqualToNull
 		{
-			builder.Append(" IS NOT NULL");
+			get { return " IS NOT NULL"; }
 		}
 
 		public virtual string OrOperator
@@ -185,6 +195,31 @@ namespace DynamicLinq
 			{
 				return value.ToString();
 			}
+		}
+
+		internal IDbConnection GetConnection()
+		{
+			return getConnection();
+		}
+
+		public IQueryBuilder GetQueryBuilder(string tableName)
+		{
+			return new QueryBuilder(this, tableName);
+		}
+
+		public QueryConnection GetConnection(QueryInfo queryInfo)
+		{
+			return new SQLQueryConnection(this, queryInfo);
+		}
+
+		public IInsertor GetInsertor(object[] rows)
+		{
+			return new SQLInsertor(this, rows);
+		}
+
+		public IUpdator GetUpdator(string tableName)
+		{
+			return new SQLUpdator(this, tableName);
 		}
 	}
 }

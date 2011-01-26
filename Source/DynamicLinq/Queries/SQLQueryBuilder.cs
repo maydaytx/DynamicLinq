@@ -4,12 +4,13 @@ using System.ComponentModel;
 using System.Linq;
 using DynamicLinq.ClauseItems;
 using DynamicLinq.Collections;
+using DynamicLinq.Dialects;
 
 namespace DynamicLinq.Queries
 {
-	internal class QueryBuilder
+	internal class QueryBuilder : IQueryBuilder
 	{
-		private readonly Dialect dialect;
+		private readonly SQLDialect dialect;
 		private readonly string tableName;
 		private readonly ParameterNameProvider nameProvider;
 		
@@ -30,7 +31,7 @@ namespace DynamicLinq.Queries
 		private int? skipCount;
 		private int? takeCount;
 
-		internal QueryBuilder(Dialect dialect, string tableName)
+		internal QueryBuilder(SQLDialect dialect, string tableName)
 		{
 			this.dialect = dialect;
 			this.tableName = tableName;
@@ -39,7 +40,7 @@ namespace DynamicLinq.Queries
 			orderByClauses = new List<Tuple<ClauseItem, ListSortDirection>>();
 		}
 
-		internal void AddWhereClause(Func<object, object> predicate, ClauseGetter clauseGetter)
+		void IQueryBuilder.AddWhereClause(Func<object, object> predicate, ClauseGetter clauseGetter)
 		{
 			object obj = predicate(clauseGetter);
 
@@ -54,14 +55,14 @@ namespace DynamicLinq.Queries
 				whereClause = new BinaryOperation(SimpleOperator.And, whereClause, clauseItem);
 		}
 
-		internal void WithSelector(Func<object, object> selector, ClauseGetter clauseGetter)
+		void IQueryBuilder.WithSelector(Func<object, object> selector, ClauseGetter clauseGetter)
 		{
 			object obj = selector(clauseGetter);
 
 			SetSelectSQL(obj, clauseGetter);
 		}
 
-		internal void WithJoin(Func<object, object> outerKeySelector, Func<object, object> innerKeySelector, Func<object, object, object> resultSelector, ClauseGetter outerClauseGetter, ClauseGetter innerClauseGetter, string innerTableName)
+		void IQueryBuilder.WithJoin(Func<object, object> outerKeySelector, Func<object, object> innerKeySelector, Func<object, object, object> resultSelector, ClauseGetter outerClauseGetter, ClauseGetter innerClauseGetter, string innerTableName)
 		{
 			object outerKey = outerKeySelector(outerClauseGetter);
 			object innerKey = innerKeySelector(innerClauseGetter);
@@ -107,7 +108,7 @@ namespace DynamicLinq.Queries
 			SetSelectSQL(obj, outerClauseGetter, innerClauseGetter);
 		}
 
-		internal void AddOrderBy(Func<object, object> keySelector, ClauseGetter clauseGetter, ListSortDirection sortDirection)
+		void IQueryBuilder.AddOrderBy(Func<object, object> keySelector, ClauseGetter clauseGetter, ListSortDirection sortDirection)
 		{
 			object obj = keySelector(clauseGetter);
 
@@ -119,7 +120,7 @@ namespace DynamicLinq.Queries
 			orderByClauses.Add(new Tuple<ClauseItem, ListSortDirection>(clauseItem, sortDirection));
 		}
 
-		internal void AddSkip(int count)
+		void IQueryBuilder.AddSkip(int count)
 		{
 			if (skipCount != null)
 				skipCount += count;
@@ -127,17 +128,17 @@ namespace DynamicLinq.Queries
 				skipCount = count;
 		}
 
-		internal void SetTake(int count)
+		void IQueryBuilder.SetTake(int count)
 		{
 			takeCount = count;
 		}
 
-		internal void SetCountSelector()
+		void IQueryBuilder.SetCountSelector()
 		{
 			isCountSelector = true;
 		}
 
-		internal QueryInfo Build()
+		QueryInfo IQueryBuilder.Build()
 		{
 			LinkedListStringBuilder sql = "SELECT ";
 

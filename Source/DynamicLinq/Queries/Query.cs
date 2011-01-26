@@ -2,29 +2,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using DynamicLinq.Dialects;
 
 namespace DynamicLinq.Queries
 {
 	public class Query : IEnumerable<object>
 	{
-		private readonly DB db;
+		private readonly IDialect dialect;
 		private readonly string tableName;
 		private readonly ClauseGetter clauseGetter;
-		private readonly QueryBuilder queryBuilder;
+		private readonly IQueryBuilder queryBuilder;
 
-		internal Query(DB db, string tableName)
+		internal Query(IDialect dialect, string tableName)
 		{
-			this.db = db;
+			this.dialect = dialect;
 			this.tableName = tableName;
 			clauseGetter = new ClauseGetter(tableName);
-			queryBuilder = new QueryBuilder(db.Dialect, tableName);
+			queryBuilder = dialect.GetQueryBuilder(tableName);
 		}
 
 		public ExtendedQuery Select(Func<dynamic, object> selector)
 		{
 			queryBuilder.WithSelector(selector, clauseGetter);
 
-			return new ExtendedQuery(db, queryBuilder);
+			return new ExtendedQuery(dialect, queryBuilder);
 		}
 
 		public Query Where(Func<dynamic, object> predicate)
@@ -38,7 +39,7 @@ namespace DynamicLinq.Queries
 		{
 			queryBuilder.WithJoin(outerKeySelector, innerKeySelector, resultSelector, clauseGetter, inner.clauseGetter, inner.tableName);
 
-			return new ExtendedQuery(db, queryBuilder);
+			return new ExtendedQuery(dialect, queryBuilder);
 		}
 
 		public Query OrderBy(Func<dynamic, object> keySelector)
@@ -64,7 +65,7 @@ namespace DynamicLinq.Queries
 		{
 			queryBuilder.SetCountSelector();
 
-			using (IEnumerator<object> enumerator = new QueryEnumerator(db, queryBuilder.Build()))
+			using (IEnumerator<object> enumerator = ((IEnumerable<object>) this).GetEnumerator())
 			{
 				enumerator.MoveNext();
 
@@ -76,7 +77,7 @@ namespace DynamicLinq.Queries
 		{
 			queryBuilder.AddSkip(count);
 
-			return new ExtendedQuery(db, queryBuilder);
+			return new ExtendedQuery(dialect, queryBuilder);
 		}
 
 		public IEnumerable<dynamic> Take(int count)
@@ -88,7 +89,7 @@ namespace DynamicLinq.Queries
 
 		IEnumerator<object> IEnumerable<object>.GetEnumerator()
 		{
-			return new QueryEnumerator(db, queryBuilder.Build());
+			return new QueryEnumerator(dialect, queryBuilder.Build());
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

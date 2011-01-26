@@ -1,20 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using DynamicLinq.ClauseItems;
 using DynamicLinq.Collections;
+using DynamicLinq.Dialects;
 
-namespace DynamicLinq
+namespace DynamicLinq.InsertUpdates
 {
-	public class Insertor
+	public class SQLInsertor : IInsertor
 	{
-		private readonly DB db;
+		private readonly SQLDialect dialect;
 		private readonly object[] rows;
 
-		internal Insertor(DB db, object[] rows)
+		internal SQLInsertor(SQLDialect dialect, object[] rows)
 		{
-			this.db = db;
+			this.dialect = dialect;
 			this.rows = rows;
 		}
 
@@ -24,7 +24,7 @@ namespace DynamicLinq
 
 			string tableName = (string) getTableName(nameGetter);
 
-			using (IDbConnection connection = db.GetConnection())
+			using (IDbConnection connection = dialect.GetConnection())
 			{
 				connection.Open();
 
@@ -32,7 +32,7 @@ namespace DynamicLinq
 				{
 					LinkedListStringBuilder sql = new LinkedListStringBuilder();
 
-					ParameterCollection parameters = new ParameterCollection(new ParameterNameProvider(db.Dialect));
+					ParameterCollection parameters = new ParameterCollection(new ParameterNameProvider(dialect));
 
 					foreach (object row in rows)
 					{
@@ -54,7 +54,7 @@ namespace DynamicLinq
 								}
 
 								columns.Append(string.Format("[{0}]", properties[i].Name));
-								values.Append(constant.BuildClause(db.Dialect, parameters));
+								values.Append(constant.BuildClause(dialect, parameters));
 							}
 
 							sql.Append(string.Format("INSERT INTO [{0}] (", tableName));

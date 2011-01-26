@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using DynamicLinq.Dialects;
 
 namespace DynamicLinq.Queries
 {
 	public class ExtendedQuery : IEnumerable<object>
 	{
-		private readonly DB db;
-		private readonly QueryBuilder queryBuilder;
+		private readonly IDialect dialect;
+		private readonly IQueryBuilder queryBuilder;
 
-		internal ExtendedQuery(DB db, QueryBuilder queryBuilder)
+		internal ExtendedQuery(IDialect dialect, IQueryBuilder queryBuilder)
 		{
-			this.db = db;
+			this.dialect = dialect;
 			this.queryBuilder = queryBuilder;
 		}
 
@@ -24,7 +25,7 @@ namespace DynamicLinq.Queries
 		{
 			queryBuilder.SetCountSelector();
 
-			using (IEnumerator<object> enumerator = new QueryEnumerator(db, queryBuilder.Build()))
+			using (IEnumerator<object> enumerator = ((IEnumerable<object>) this).GetEnumerator())
 			{
 				enumerator.MoveNext();
 
@@ -48,7 +49,7 @@ namespace DynamicLinq.Queries
 
 		IEnumerator<object> IEnumerable<object>.GetEnumerator()
 		{
-			return new QueryEnumerator(db, queryBuilder.Build());
+			return new QueryEnumerator(dialect, queryBuilder.Build());
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

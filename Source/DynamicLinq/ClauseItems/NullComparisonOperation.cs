@@ -1,4 +1,5 @@
 ﻿using DynamicLinq.Collections;
+using DynamicLinq.Dialects;
 
 namespace DynamicLinq.ClauseItems
 {
@@ -13,14 +14,14 @@ namespace DynamicLinq.ClauseItems
 			this.item = item;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(Dialect dialect, ParameterCollection parameters)
+		internal override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
 		{
 			LinkedListStringBuilder builder = item.BuildClause(dialect, parameters);
 
 			if (compareEqualToNull)
-				dialect.CompareEqualToNull(builder);
+				builder.Append(dialect.CompareEqualToNull);
 			else
-				dialect.CompareNotEqualToNull(builder);
+				builder.Append(dialect.CompareNotEqualToNull);
 
 			return builder;
 		}

@@ -1,4 +1,5 @@
 ﻿using DynamicLinq.Collections;
+using DynamicLinq.Dialects;
 
 namespace DynamicLinq.ClauseItems
 {
@@ -16,7 +17,7 @@ namespace DynamicLinq.ClauseItems
 			this.@object = @object;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(Dialect dialect, ParameterCollection parameters)
+		internal override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
 		{
 			return dialect.Constant(@object, parameters);
 		}

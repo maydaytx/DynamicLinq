@@ -5,46 +5,28 @@ using DynamicLinq.Collections;
 
 namespace DynamicLinq.Queries
 {
-	internal class QueryConnection : IDisposable
+	public abstract class QueryConnection : IDisposable
 	{
 		private readonly QueryInfo queryInfo;
-		private IDbConnection connection;
-		private IDbCommand command;
-		private IDataReader reader;
-		private bool isDisposed;
 
-		internal QueryConnection(DB db, QueryInfo queryInfo)
+		protected bool IsDisposed { get; set; }
+
+		protected QueryConnection(QueryInfo queryInfo)
 		{
 			this.queryInfo = queryInfo;
-
-			connection = db.GetConnection();
-			connection.Open();
-
-			command = connection.CreateCommand();
-
-			command.CommandText = queryInfo.SQL;
-
-			foreach (Parameter parameter in queryInfo.Parameters)
-			{
-				IDbDataParameter dataParameter = command.CreateParameter();
-
-				dataParameter.ParameterName = parameter.Name;
-				dataParameter.Value = parameter.Value;
-
-				command.Parameters.Add(dataParameter);
-			}
-
-			reader = command.ExecuteReader();
 		}
+
+		protected abstract IDataReader Reader { get; }
 
 		internal bool Read(out object obj)
 		{
-			if (isDisposed)
+			if (IsDisposed)
 			{
 				obj = null;
 				return false;
 			}
-			if (reader.Read())
+
+			if (Reader.Read())
 			{
 				if (queryInfo.IsSingleColumnSelect)
 				{
@@ -54,7 +36,7 @@ namespace DynamicLinq.Queries
 				{
 					DynamicBag dynamicBag = new DynamicBag();
 
-					for (int i = 0; i < reader.FieldCount; ++i)
+					for (int i = 0; i < Reader.FieldCount; ++i)
 					{
 						Tuple<string, object> value = GetColumn(i);
 
@@ -77,9 +59,9 @@ namespace DynamicLinq.Queries
 
 		private Tuple<string, object> GetColumn(int index)
 		{
-			string name = reader.GetName(index);
+			string name = Reader.GetName(index);
 
-			object value = reader.GetValue(index);
+			object value = Reader.GetValue(index);
 			value = value == DBNull.Value ? null : value;
 
 			bool useFirstConversion = queryInfo.IsSingleColumnSelect && queryInfo.SelectConversions.Count > 0;
@@ -130,27 +112,6 @@ namespace DynamicLinq.Queries
 			}
 		}
 
-		void IDisposable.Dispose()
-		{
-			if (reader != null)
-			{
-				reader.Dispose();
-				reader = null;
-			}
-
-			if (command != null)
-			{
-				command.Dispose();
-				command = null;
-			}
-
-			if (connection != null)
-			{
-				connection.Dispose();
-				connection = null;
-			}
-
-			isDisposed = true;
-		}
+		public abstract void Dispose();
 	}
 }

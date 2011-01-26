@@ -3,36 +3,36 @@ using System.Collections.Generic;
 
 namespace DynamicLinq.Queries
 {
-	internal class QueryInfo
+	public class QueryInfo
 	{
-		private readonly string sql;
+		private readonly string query;
 		private readonly IEnumerable<Parameter> parameters;
 		private readonly IDictionary<string, Type> selectConversions;
 		private readonly bool isSingleColumnSelect;
 
-		internal string SQL
+		public string Query
 		{
-			get { return sql; }
+			get { return query; }
 		}
 
-		internal IEnumerable<Parameter> Parameters
+		public IEnumerable<Parameter> Parameters
 		{
 			get { return parameters; }
 		}
 
-		internal IDictionary<string, Type> SelectConversions
+		public IDictionary<string, Type> SelectConversions
 		{
 			get { return selectConversions; }
 		}
 
-		internal bool IsSingleColumnSelect
+		public bool IsSingleColumnSelect
 		{
 			get { return isSingleColumnSelect; }
 		}
 
-		internal QueryInfo(string sql, IEnumerable<Parameter> parameters, IDictionary<string, Type> selectConversions, bool isSingleColumnSelect)
+		public QueryInfo(string query, IEnumerable<Parameter> parameters, IDictionary<string, Type> selectConversions, bool isSingleColumnSelect)
 		{
-			this.sql = sql;
+			this.query = query;
 			this.parameters = parameters;
 			this.selectConversions = selectConversions;
 			this.isSingleColumnSelect = isSingleColumnSelect;

@@ -1,9 +1,13 @@
-﻿using DynamicLinq.Collections;
+﻿using System;
+using System.Data;
+using DynamicLinq.Collections;
 
 namespace DynamicLinq.Dialects
 {
-	public class MySQLDialect : Dialect
+	public class MySQLDialect : SQLDialect
 	{
+		public MySQLDialect(Func<IDbConnection> getConnection) : base(getConnection) { }
+
 		public override void ConcatenateStrings(LinkedListStringBuilder builder, LinkedListStringBuilder appendee)
 		{
 			builder.Prepend("CONCAT(");

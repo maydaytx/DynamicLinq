@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using DynamicLinq.Dialects;
 
 namespace DynamicLinq.Queries
 {
@@ -10,10 +12,10 @@ namespace DynamicLinq.Queries
 		private readonly QueryConnection queryConnection;
 		private int currentPos;
 
-		internal QueryEnumerator(DB db, QueryInfo queryInfo)
+		internal QueryEnumerator(IDialect dialect, QueryInfo queryInfo)
 		{
 			results = new List<object>();
-			queryConnection = queryConnection = new QueryConnection(db, queryInfo);
+			queryConnection = dialect.GetConnection(queryInfo);
 			currentPos = -1;
 		}
 
