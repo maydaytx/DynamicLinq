@@ -14,16 +14,27 @@ namespace DynamicLinq.ClauseItems
 			this.item = item;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
+		public override bool ShouldParenthesize
 		{
-			LinkedListStringBuilder builder = item.BuildClause(dialect, parameters);
+			get { return true; }
+		}
+
+		public override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
+		{
+			LinkedListStringBuilder builder = item.BuildAndParenthesize(dialect, parameters);
+			builder.Append(" ");
 
 			if (compareEqualToNull)
-				builder.Append(dialect.CompareEqualToNull);
+				builder.Append(dialect.EqualNull);
 			else
-				builder.Append(dialect.CompareNotEqualToNull);
+				builder.Append(dialect.NotEqualNull);
 
 			return builder;
+		}
+
+		public override string ToString()
+		{
+			return (compareEqualToNull ? "IsNull(" : "IsNotNull(") + item.ToString() + ")";
 		}
 	}
 }

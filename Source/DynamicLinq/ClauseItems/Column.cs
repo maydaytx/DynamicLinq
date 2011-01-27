@@ -19,9 +19,19 @@ namespace DynamicLinq.ClauseItems
 			this.name = name;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
+		public override bool ShouldParenthesize
 		{
-			return string.Format("[{0}].[{1}]", tableName, name);
+			get { return false; }
+		}
+
+		public override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
+		{
+			return dialect.Column(tableName, name);
+		}
+
+		public override string ToString()
+		{
+			return "[" + tableName + "].[" + name + "]";
 		}
 	}
 }

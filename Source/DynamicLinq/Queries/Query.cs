@@ -176,7 +176,7 @@ namespace DynamicLinq.Queries
 			}
 			else
 			{
-				selections = GetClauseItems(obj).Select(x => new Tuple<string, ClauseItem>(x.Item1, CheckForConversion(x, conversions)));
+				selections = GetClauseItems(obj).Select(property => new Tuple<string, ClauseItem>(property.Item1, CheckForConversion(property, conversions)));
 				selectType = SelectType.Multiple;
 			}
 
@@ -201,7 +201,7 @@ namespace DynamicLinq.Queries
 
 		private static IEnumerable<Tuple<string, ClauseItem>> GetClauseItems(object obj)
 		{
-			return obj.GetType().GetProperties().Select(p => new Tuple<string, ClauseItem>(p.Name, (ClauseItem)p.GetValue(obj, null)));
+			return obj.GetType().GetProperties().Select(property => new Tuple<string, ClauseItem>(property.Name, (ClauseItem) property.GetValue(obj, null)));
 		}
 	}
 }

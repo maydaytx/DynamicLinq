@@ -17,9 +17,19 @@ namespace DynamicLinq.ClauseItems
 			this.@object = @object;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
+		public override bool ShouldParenthesize
+		{
+			get { return false; }
+		}
+
+		public override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
 		{
 			return dialect.Constant(@object, parameters);
+		}
+
+		public override string ToString()
+		{
+			return @object.ToString();
 		}
 	}
 }

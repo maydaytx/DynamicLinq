@@ -61,7 +61,7 @@ namespace DynamicLinq.InsertUpdates
 							sql.Append(string.Format("[{0}] = {1}", properties[i].Name, constant.BuildClause(dialect, parameters)));
 						}
 
-						if (whereClause != null)
+						if (!ReferenceEquals(whereClause, null))
 						{
 							sql.Append(" WHERE ");
 							sql.Append(whereClause.BuildClause(dialect, parameters));

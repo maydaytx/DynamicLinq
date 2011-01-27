@@ -25,9 +25,19 @@ namespace DynamicLinq.ClauseItems
 			this.type = type;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
+		public override bool ShouldParenthesize
+		{
+			get { throw new NotSupportedException("Conversions should only occur in selects"); }
+		}
+
+		public override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
 		{
 			throw new NotSupportedException("Conversions should only occur in selects");
+		}
+
+		public override string ToString()
+		{
+			return "Convert(" + item.ToString() + ", " + type + ")";
 		}
 	}
 }

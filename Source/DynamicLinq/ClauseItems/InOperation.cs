@@ -16,13 +16,23 @@ namespace DynamicLinq.ClauseItems
 			this.list = list;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
+		public override bool ShouldParenthesize
+		{
+			get { return false; }
+		}
+
+		public override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
 		{
 			LinkedListStringBuilder builder = item.BuildClause(dialect, parameters);
 
 			dialect.InOperator(builder, list.Select(listItem => listItem.BuildClause(dialect, parameters)));
 
 			return builder;
+		}
+
+		public override string ToString()
+		{
+			return "In(" + item.ToString() + list.Aggregate(string.Empty, (current, listItem) => current + ", " + listItem.ToString()) + ")";
 		}
 	}
 }

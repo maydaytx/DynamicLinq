@@ -25,9 +25,9 @@ namespace DynamicLinq.Dialects
 
 		string NotEqualOperator { get; }
 
-		string CompareEqualToNull { get; }
+		string EqualNull { get; }
 
-		string CompareNotEqualToNull { get; }
+		string NotEqualNull { get; }
 
 		string OrOperator { get; }
 
@@ -50,6 +50,8 @@ namespace DynamicLinq.Dialects
 		string ComplementOperator { get; }
 
 		void InOperator(LinkedListStringBuilder builder, IEnumerable<LinkedListStringBuilder> list);
+
+		string Column(string tableName, string columnName);
 
 		string Constant(object value, ParameterCollection parameters);
 

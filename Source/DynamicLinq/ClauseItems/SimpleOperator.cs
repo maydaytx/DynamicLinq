@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using DynamicLinq.Dialects;
 
 namespace DynamicLinq.ClauseItems
@@ -35,6 +37,11 @@ namespace DynamicLinq.ClauseItems
 		private SimpleOperator(Func<IDialect, string> getOperator)
 		{
 			this.getOperator = getOperator;
+		}
+
+		public override string ToString()
+		{
+			return GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Static).First(x => x.GetValue(null) == this).Name;
 		}
 	}
 }

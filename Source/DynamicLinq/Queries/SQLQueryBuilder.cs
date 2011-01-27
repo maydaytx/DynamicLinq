@@ -45,7 +45,7 @@ namespace DynamicLinq.Queries
 			if (ReferenceEquals(whereClause, null))
 				whereClause = clauseItem;
 			else
-				whereClause = new BinaryOperation(SimpleOperator.And, whereClause, clauseItem);
+				whereClause = whereClause && clauseItem;
 		}
 
 		void IQueryBuilder.WithSelector(IEnumerable<Tuple<string, ClauseItem>> selections, SelectType selectType, IDictionary<string, Type> conversions)

@@ -16,16 +16,25 @@ namespace DynamicLinq.ClauseItems
 			this.rightItem = rightItem;
 		}
 
-		internal override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
+		public override bool ShouldParenthesize
 		{
-			LinkedListStringBuilder builder = leftItem.BuildClause(dialect, parameters);
+			get { return true; }
+		}
 
+		public override LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters)
+		{
+			LinkedListStringBuilder builder = leftItem.BuildAndParenthesize(dialect, parameters);
 			builder.Append(" ");
 			builder.Append(@operator.GetOperator(dialect));
 			builder.Append(" ");
-			builder.Append(rightItem.BuildClause(dialect, parameters));
+			builder.Append(rightItem.BuildAndParenthesize(dialect, parameters));
 
 			return builder;
+		}
+
+		public override string ToString()
+		{
+			return @operator + "(" + leftItem.ToString() + ", " + rightItem.ToString() + ")";
 		}
 	}
 }

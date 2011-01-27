@@ -330,4 +330,38 @@ namespace DynamicLinq
 		It should_retrieve_1_records = () =>
 			results.Count.ShouldEqual(1);
 	}
+
+	public class When_order_of_operations_matters
+	{
+		private static DB db;
+		private static IList<long> results;
+
+		Establish context = () =>
+		{
+			db = SQLite.GetDB("CREATE TABLE [Table] ([Id] INTEGER PRIMARY KEY, [Name] TEXT, [Value] INTEGER)");
+
+			db.Insert(
+				new {Id = 1, Value = 4},
+				new {Id = 2, Name = "Salamander", Value = 3},
+				new {Id = 3, Name = "Joe", Value = 2},
+				new {Id = 4, Name = "Sally", Value = 1})
+				.Into(x => x.Table);
+		};
+
+		private Because of = () =>
+		{
+			results = (from record in db.Query(x => x.Table)
+					   where record.Name != null && (record.Value % 3 == 1 || record.Value == 2)
+					   select record.Id).Cast<long>().ToList();
+		};
+
+		It should_retrieve_the_records = () =>
+		{
+			results[0].ShouldEqual(3L);
+			results[1].ShouldEqual(4L);
+		};
+
+		It should_retrieve_1_records = () =>
+			results.Count.ShouldEqual(2);
+	}
 }

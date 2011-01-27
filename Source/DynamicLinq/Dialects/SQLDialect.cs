@@ -67,14 +67,14 @@ namespace DynamicLinq.Dialects
 			get { return "<>"; }
 		}
 
-		public virtual string CompareEqualToNull
+		public virtual string EqualNull
 		{
-			get { return " IS NULL"; }
+			get { return "IS NULL"; }
 		}
 
-		public virtual string CompareNotEqualToNull
+		public virtual string NotEqualNull
 		{
-			get { return " IS NOT NULL"; }
+			get { return "IS NOT NULL"; }
 		}
 
 		public virtual string OrOperator
@@ -144,6 +144,11 @@ namespace DynamicLinq.Dialects
 			}
 
 			builder.Append(")");
+		}
+
+		public string Column(string tableName, string columnName)
+		{
+			return string.Format("[{0}].[{1}]", tableName, columnName);
 		}
 
 		public virtual string DateTimeFormat

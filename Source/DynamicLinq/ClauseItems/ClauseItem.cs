@@ -8,7 +8,9 @@ namespace DynamicLinq.ClauseItems
 	{
 		internal ClauseItem() { }
 
-		internal abstract LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters);
+		public abstract bool ShouldParenthesize { get; }
+
+		public abstract LinkedListStringBuilder BuildClause(IDialect dialect, ParameterCollection parameters);
 
 		#region implicit conversions
 
@@ -124,7 +126,7 @@ namespace DynamicLinq.ClauseItems
 
 		public static bool operator true(ClauseItem x)
 		{
-			return true;
+			return false;
 		}
 
 		public static bool operator false(ClauseItem x)
