@@ -1,5 +1,5 @@
-﻿using System.Data;
-using DynamicLinq.Dialects;
+﻿using System;
+using System.Data;
 
 namespace DynamicLinq.Queries
 {
@@ -9,9 +9,9 @@ namespace DynamicLinq.Queries
 		private IDbCommand command;
 		private IDataReader reader;
 
-		internal SQLQueryConnection(SQLDialect dialect, QueryInfo queryInfo) : base(queryInfo)
+		internal SQLQueryConnection(Func<IDbConnection> getConnection, QueryInfo queryInfo) : base(queryInfo)
 		{
-			connection = dialect.GetConnection();
+			connection = getConnection();
 			connection.Open();
 
 			command = connection.CreateCommand();
@@ -31,9 +31,9 @@ namespace DynamicLinq.Queries
 			reader = command.ExecuteReader();
 		}
 
-		protected override IDataReader Reader
+		protected override IQueryReader Reader
 		{
-			get { return reader; }
+			get { return new SQLQueryReader(reader); }
 		}
 
 		public override void Dispose()
@@ -57,6 +57,36 @@ namespace DynamicLinq.Queries
 			}
 
 			IsDisposed = true;
+		}
+
+		private class SQLQueryReader : IQueryReader
+		{
+			private readonly IDataReader reader;
+
+			public SQLQueryReader(IDataReader reader)
+			{
+				this.reader = reader;
+			}
+
+			public bool Read()
+			{
+				return reader.Read();
+			}
+
+			public int FieldCount
+			{
+				get { return reader.FieldCount; }
+			}
+
+			public string GetName(int index)
+			{
+				return reader.GetName(index);
+			}
+
+			public object GetValue(int index)
+			{
+				return reader.GetValue(index);
+			}
 		}
 	}
 }

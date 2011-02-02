@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Linq;
 using DynamicLinq.Collections;
 
@@ -16,7 +15,7 @@ namespace DynamicLinq.Queries
 			this.queryInfo = queryInfo;
 		}
 
-		protected abstract IDataReader Reader { get; }
+		protected abstract IQueryReader Reader { get; }
 
 		internal bool Read(out object obj)
 		{

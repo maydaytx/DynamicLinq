@@ -40,7 +40,7 @@ namespace DynamicLinq.Queries
 			orderByClauses = new List<Tuple<ClauseItem, ListSortDirection>>();
 		}
 
-		void IQueryBuilder.AddWhereClause(ClauseItem clauseItem)
+		public void AddWhereClause(ClauseItem clauseItem)
 		{
 			if (ReferenceEquals(whereClause, null))
 				whereClause = clauseItem;
@@ -48,7 +48,7 @@ namespace DynamicLinq.Queries
 				whereClause = whereClause && clauseItem;
 		}
 
-		void IQueryBuilder.WithSelector(IEnumerable<Tuple<string, ClauseItem>> selections, SelectType selectType, IDictionary<string, Type> conversions)
+		public void WithSelector(IEnumerable<Tuple<string, ClauseItem>> selections, SelectType selectType, IDictionary<string, Type> conversions)
 		{
 			selectParameters = new ParameterCollection(nameProvider);
 			selectConversions = conversions;
@@ -84,7 +84,7 @@ namespace DynamicLinq.Queries
 			}
 		}
 
-		void IQueryBuilder.WithJoin(ClauseItem joinClause, string innerTableName)
+		public void WithJoin(ClauseItem joinClause, string innerTableName)
 		{
 			joinTableName = innerTableName;
 			joinParameters = new ParameterCollection(nameProvider);
@@ -92,12 +92,12 @@ namespace DynamicLinq.Queries
 			joinSQL = joinClause.BuildClause(dialect, joinParameters);
 		}
 
-		void IQueryBuilder.AddOrderBy(ClauseItem clauseItem, ListSortDirection sortDirection)
+		public void AddOrderBy(ClauseItem clauseItem, ListSortDirection sortDirection)
 		{
 			orderByClauses.Add(new Tuple<ClauseItem, ListSortDirection>(clauseItem, sortDirection));
 		}
 
-		void IQueryBuilder.AddSkip(int count)
+		public void AddSkip(int count)
 		{
 			if (skipCount != null)
 				skipCount += count;
@@ -105,17 +105,17 @@ namespace DynamicLinq.Queries
 				skipCount = count;
 		}
 
-		void IQueryBuilder.SetTake(int count)
+		public void SetTake(int count)
 		{
 			takeCount = count;
 		}
 
-		void IQueryBuilder.SetCountSelector()
+		public void SetCountSelector()
 		{
 			isCountSelector = true;
 		}
 
-		QueryInfo IQueryBuilder.Build()
+		public QueryInfo Build()
 		{
 			LinkedListStringBuilder sql = "SELECT ";
 

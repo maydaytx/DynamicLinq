@@ -1,17 +1,20 @@
 ﻿using System;
+using System.Data;
 using DynamicLinq.Dialects;
 using DynamicLinq.InsertUpdates;
 using DynamicLinq.Queries;
 
 namespace DynamicLinq
 {
-	public class DB
+	public sealed class DB
 	{
-		private readonly IDialect dialect;
+		private readonly SQLDialect dialect;
+		private readonly Func<IDbConnection> getConnection;
 
-		public DB(IDialect dialect)
+		public DB(SQLDialect dialect, Func<IDbConnection> getConnection)
 		{
 			this.dialect = dialect;
+			this.getConnection = getConnection;
 		}
 
 		public Query Query(Func<dynamic, object> getTableName)
@@ -20,21 +23,23 @@ namespace DynamicLinq
 
 			string tableName = (string) getTableName(nameGetter);
 
-			return new Query(dialect, tableName);
+			Func<QueryInfo, QueryConnection> getQueryConnection = queryInfo => new SQLQueryConnection(getConnection, queryInfo);
+
+			return new Query(getQueryConnection, dialect, tableName, new SQLQueryBuilder(dialect, tableName));
 		}
 
-		public IInsertor Insert(params object[] rows)
+		public SQLInsertor Insert(params object[] rows)
 		{
-			return dialect.GetInsertor(rows);
+			return new SQLInsertor(getConnection, dialect, rows);
 		}
 
-		public IUpdator Update(Func<dynamic, object> getTableName)
+		public SQLUpdator Update(Func<dynamic, object> getTableName)
 		{
 			NameGetter nameGetter = new NameGetter();
 
 			string tableName = (string) getTableName(nameGetter);
 
-			return dialect.GetUpdator(tableName);
+			return new SQLUpdator(getConnection, dialect, tableName);
 		}
 	}
 }

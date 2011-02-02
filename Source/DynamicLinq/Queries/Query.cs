@@ -10,17 +10,19 @@ namespace DynamicLinq.Queries
 {
 	public class Query : IEnumerable<object>
 	{
+		private readonly Func<QueryInfo, QueryConnection> getQueryConnection;
 		private readonly IDialect dialect;
 		private readonly string tableName;
-		private readonly ClauseGetter clauseGetter;
 		private readonly IQueryBuilder queryBuilder;
+		private readonly ClauseGetter clauseGetter;
 
-		internal Query(IDialect dialect, string tableName)
+		public Query(Func<QueryInfo, QueryConnection> getQueryConnection, IDialect dialect, string tableName, IQueryBuilder queryBuilder)
 		{
+			this.getQueryConnection = getQueryConnection;
 			this.dialect = dialect;
 			this.tableName = tableName;
+			this.queryBuilder = queryBuilder;
 			clauseGetter = new ClauseGetter(tableName);
-			queryBuilder = dialect.GetQueryBuilder(tableName);
 		}
 
 		public ExtendedQuery Select(Func<dynamic, object> selector)
@@ -29,7 +31,7 @@ namespace DynamicLinq.Queries
 
 			SetSelector(obj, clauseGetter);
 
-			return new ExtendedQuery(dialect, queryBuilder);
+			return new ExtendedQuery(getQueryConnection, dialect, queryBuilder);
 		}
 
 		public Query Where(Func<dynamic, object> predicate)
@@ -87,7 +89,7 @@ namespace DynamicLinq.Queries
 
 			SetSelector(obj, clauseGetter, inner.clauseGetter);
 
-			return new ExtendedQuery(dialect, queryBuilder);
+			return new ExtendedQuery(getQueryConnection, dialect, queryBuilder);
 		}
 
 		public Query OrderBy(Func<dynamic, object> keySelector)
@@ -125,7 +127,7 @@ namespace DynamicLinq.Queries
 		{
 			queryBuilder.AddSkip(count);
 
-			return new ExtendedQuery(dialect, queryBuilder);
+			return new ExtendedQuery(getQueryConnection, dialect, queryBuilder);
 		}
 
 		public IEnumerable<dynamic> Take(int count)
@@ -137,7 +139,7 @@ namespace DynamicLinq.Queries
 
 		IEnumerator<object> IEnumerable<object>.GetEnumerator()
 		{
-			return new QueryEnumerator(dialect, queryBuilder.Build());
+			return new QueryEnumerator(getQueryConnection, dialect, queryBuilder.Build());
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

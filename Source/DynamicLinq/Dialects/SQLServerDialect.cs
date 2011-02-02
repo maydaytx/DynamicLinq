@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Data;
 using DynamicLinq.Collections;
 
 namespace DynamicLinq.Dialects
 {
 	public class SQLServerDialect : SQLDialect
 	{
-		public SQLServerDialect(Func<IDbConnection> getConnection) : base(getConnection) { }
-
 		public override string ConcatenateOperator
 		{
 			get { return "+"; }

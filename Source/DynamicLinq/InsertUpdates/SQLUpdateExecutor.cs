@@ -7,21 +7,23 @@ using DynamicLinq.Dialects;
 
 namespace DynamicLinq.InsertUpdates
 {
-	public class SQLUpdateExecutor : IUpdateExecutor
+	public class SQLUpdateExecutor
 	{
+		private readonly Func<IDbConnection> getConnection;
 		private readonly SQLDialect dialect;
 		private readonly string tableName;
 		private readonly object row;
 		private ClauseItem whereClause;
 
-		internal SQLUpdateExecutor(SQLDialect dialect, string tableName, object row)
+		internal SQLUpdateExecutor(Func<IDbConnection> getConnection, SQLDialect dialect, string tableName, object row)
 		{
+			this.getConnection = getConnection;
 			this.dialect = dialect;
 			this.tableName = tableName;
 			this.row = row;
 		}
 
-		public IUpdateExecutor Where(Func<dynamic, object> predicate)
+		public SQLUpdateExecutor Where(Func<dynamic, object> predicate)
 		{
 			ClauseGetter clauseGetter = new ClauseGetter(tableName);
 
@@ -37,7 +39,7 @@ namespace DynamicLinq.InsertUpdates
 
 		public void Execute()
 		{
-			using (IDbConnection connection = dialect.GetConnection())
+			using (IDbConnection connection = getConnection())
 			{
 				connection.Open();
 

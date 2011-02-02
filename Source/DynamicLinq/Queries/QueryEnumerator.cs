@@ -11,10 +11,10 @@ namespace DynamicLinq.Queries
 		private readonly QueryConnection queryConnection;
 		private int currentPos;
 
-		internal QueryEnumerator(IDialect dialect, QueryInfo queryInfo)
+		internal QueryEnumerator(Func<QueryInfo, QueryConnection> getQueryConnection, IDialect dialect, QueryInfo queryInfo)
 		{
 			results = new List<object>();
-			queryConnection = dialect.GetConnection(queryInfo);
+			queryConnection = getQueryConnection(queryInfo);
 			currentPos = -1;
 		}
 

@@ -7,13 +7,15 @@ using DynamicLinq.Dialects;
 
 namespace DynamicLinq.InsertUpdates
 {
-	public class SQLInsertor : IInsertor
+	public class SQLInsertor
 	{
+		private readonly Func<IDbConnection> getConnection;
 		private readonly SQLDialect dialect;
 		private readonly object[] rows;
 
-		internal SQLInsertor(SQLDialect dialect, object[] rows)
+		internal SQLInsertor(Func<IDbConnection> getConnection, SQLDialect dialect, object[] rows)
 		{
+			this.getConnection = getConnection;
 			this.dialect = dialect;
 			this.rows = rows;
 		}
@@ -24,7 +26,7 @@ namespace DynamicLinq.InsertUpdates
 
 			string tableName = (string) getTableName(nameGetter);
 
-			using (IDbConnection connection = dialect.GetConnection())
+			using (IDbConnection connection = getConnection())
 			{
 				connection.Open();
 

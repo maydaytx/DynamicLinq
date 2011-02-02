@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using DynamicLinq.Collections;
-using DynamicLinq.InsertUpdates;
-using DynamicLinq.Queries;
 
 namespace DynamicLinq.Dialects
 {
@@ -54,13 +52,5 @@ namespace DynamicLinq.Dialects
 		string Column(string tableName, string columnName);
 
 		string Constant(object value, ParameterCollection parameters);
-
-		IQueryBuilder GetQueryBuilder(string tableName);
-
-		QueryConnection GetConnection(QueryInfo queryInfo);
-
-		IInsertor GetInsertor(object[] rows);
-
-		IUpdator GetUpdator(string tableName);
 	}
 }

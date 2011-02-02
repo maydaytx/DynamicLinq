@@ -7,11 +7,13 @@ namespace DynamicLinq.Queries
 {
 	public class ExtendedQuery : IEnumerable<object>
 	{
+		private readonly Func<QueryInfo, QueryConnection> getQueryConnection;
 		private readonly IDialect dialect;
 		private readonly IQueryBuilder queryBuilder;
 
-		internal ExtendedQuery(IDialect dialect, IQueryBuilder queryBuilder)
+		internal ExtendedQuery(Func<QueryInfo, QueryConnection> getQueryConnection, IDialect dialect, IQueryBuilder queryBuilder)
 		{
+			this.getQueryConnection = getQueryConnection;
 			this.dialect = dialect;
 			this.queryBuilder = queryBuilder;
 		}
@@ -49,7 +51,7 @@ namespace DynamicLinq.Queries
 
 		IEnumerator<object> IEnumerable<object>.GetEnumerator()
 		{
-			return new QueryEnumerator(dialect, queryBuilder.Build());
+			return new QueryEnumerator(getQueryConnection, dialect, queryBuilder.Build());
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
