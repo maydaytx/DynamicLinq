@@ -71,7 +71,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\ExtendedQuery.cs" />
     <Compile Include="Queries\IQueryBuilder.cs" />
-    <Compile Include="Queries\IQueryReader.cs" />
     <Compile Include="Queries\Query.cs" />
     <Compile Include="Queries\QueryConnection.cs" />
     <Compile Include="Queries\QueryEnumerator.cs" />

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using DynamicLinq.Collections;
 
 namespace DynamicLinq.Queries
 {
@@ -10,41 +9,25 @@ namespace DynamicLinq.Queries
 
 		protected bool IsDisposed { get; set; }
 
+		protected QueryInfo QueryInfo
+		{
+			get { return queryInfo; }
+		}
+
 		protected QueryConnection(QueryInfo queryInfo)
 		{
 			this.queryInfo = queryInfo;
 		}
 
-		protected abstract IQueryReader Reader { get; }
-
-		internal bool Read(out object obj)
+		internal bool GetNext(out object obj)
 		{
 			if (IsDisposed)
 			{
 				obj = null;
 				return false;
 			}
-
-			if (Reader.Read())
+			else if (Read(out obj))
 			{
-				if (queryInfo.IsSingleColumnSelect)
-				{
-					obj = GetColumn(0).Item2;
-				}
-				else
-				{
-					DynamicBag dynamicBag = new DynamicBag();
-
-					for (int i = 0; i < Reader.FieldCount; ++i)
-					{
-						Tuple<string, object> value = GetColumn(i);
-
-						dynamicBag.SetValue(value.Item1, value.Item2);
-					}
-
-					obj = dynamicBag;
-				}
-
 				return true;
 			}
 			else
@@ -56,11 +39,8 @@ namespace DynamicLinq.Queries
 			}
 		}
 
-		private Tuple<string, object> GetColumn(int index)
+		protected Tuple<string, object> GetColumn(string name, object value)
 		{
-			string name = Reader.GetName(index);
-
-			object value = Reader.GetValue(index);
 			value = value == DBNull.Value ? null : value;
 
 			bool useFirstConversion = queryInfo.IsSingleColumnSelect && queryInfo.SelectConversions.Count > 0;
@@ -110,6 +90,8 @@ namespace DynamicLinq.Queries
 				return System.Convert.ChangeType(value, type);
 			}
 		}
+
+		protected abstract bool Read(out object obj);
 
 		public abstract void Dispose();
 	}

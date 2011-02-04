@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using DynamicLinq.Collections;
 
 namespace DynamicLinq.Queries
 {
@@ -31,9 +32,35 @@ namespace DynamicLinq.Queries
 			reader = command.ExecuteReader();
 		}
 
-		protected override IQueryReader Reader
+		protected override bool Read(out object obj)
 		{
-			get { return new SQLQueryReader(reader); }
+			if (reader.Read())
+			{
+				if (QueryInfo.IsSingleColumnSelect)
+				{
+					obj = GetColumn(reader.GetName(0), reader.GetValue(0)).Item2;
+				}
+				else
+				{
+					DynamicBag dynamicBag = new DynamicBag();
+
+					for (int i = 0; i < reader.FieldCount; ++i)
+					{
+						Tuple<string, object> value = GetColumn(reader.GetName(i), reader.GetValue(i));
+
+						dynamicBag.SetValue(value.Item1, value.Item2);
+					}
+
+					obj = dynamicBag;
+				}
+
+				return true;
+			}
+			else
+			{
+				obj = null;
+				return false;
+			}
 		}
 
 		public override void Dispose()
@@ -57,36 +84,6 @@ namespace DynamicLinq.Queries
 			}
 
 			IsDisposed = true;
-		}
-
-		private class SQLQueryReader : IQueryReader
-		{
-			private readonly IDataReader reader;
-
-			public SQLQueryReader(IDataReader reader)
-			{
-				this.reader = reader;
-			}
-
-			public bool Read()
-			{
-				return reader.Read();
-			}
-
-			public int FieldCount
-			{
-				get { return reader.FieldCount; }
-			}
-
-			public string GetName(int index)
-			{
-				return reader.GetName(index);
-			}
-
-			public object GetValue(int index)
-			{
-				return reader.GetValue(index);
-			}
 		}
 	}
 }

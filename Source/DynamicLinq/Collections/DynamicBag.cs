@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace DynamicLinq.Collections
 {
-	internal class DynamicBag : DynamicObject, ISerializable
+	public class DynamicBag : DynamicObject, ISerializable
 	{
 		private readonly IDictionary<string, object> values = new Dictionary<string, object>();
 
-		internal DynamicBag() { }
+		public DynamicBag() { }
 
 		private DynamicBag(SerializationInfo info, StreamingContext context)
 		{
@@ -38,12 +40,22 @@ namespace DynamicLinq.Collections
 			return true;
 		}
 
+		public object GetValue(string name)
+		{
+			return values[name];
+		}
+
 		public void SetValue(string name, object value)
 		{
 			if (values.ContainsKey(name))
 				values[name] = value;
 			else
 				values.Add(name, value);
+		}
+
+		public IEnumerable<Tuple<string, object>> Values
+		{
+			get { return values.Select(value => new Tuple<string, object>(value.Key, value.Value)); }
 		}
 
 		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)

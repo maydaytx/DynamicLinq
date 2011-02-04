@@ -34,7 +34,7 @@ namespace DynamicLinq.Queries
 			{
 				object obj;
 
-				if (queryConnection.Read(out obj))
+				if (queryConnection.GetNext(out obj))
 				{
 					++currentPos;
 					results.Add(obj);
