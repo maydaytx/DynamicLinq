@@ -20,22 +20,12 @@ namespace DynamicLinq.Collections
 
 		public override bool TryGetMember(GetMemberBinder binder, out object result)
 		{
-			if (values.ContainsKey(binder.Name))
-			{
-				result = values[binder.Name];
-				return true;
-			}
-
-			result = null;
-			return false;
+			return TryGetValue(binder.Name, out result);
 		}
 
 		public override bool TrySetMember(SetMemberBinder binder, object value)
 		{
-			if (values.ContainsKey(binder.Name))
-				values[binder.Name] = value;
-			else
-				values.Add(binder.Name, value);
+			SetValue(binder.Name, value);
 
 			return true;
 		}
@@ -43,6 +33,18 @@ namespace DynamicLinq.Collections
 		public object GetValue(string name)
 		{
 			return values[name];
+		}
+
+		public bool TryGetValue(string name, out object result)
+		{
+			if (values.ContainsKey(name))
+			{
+				result = values[name];
+				return true;
+			}
+
+			result = null;
+			return false;
 		}
 
 		public void SetValue(string name, object value)
