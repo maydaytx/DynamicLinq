@@ -7,45 +7,60 @@ namespace DynamicLinq.AzureTables
 {
 	internal static class AzureConvert
 	{
-		private static readonly Type clientConvert = typeof (DataServiceContext).Assembly.GetTypes().Where(type => type.Name == "ClientConvert").First();
+		private delegate bool TryKeyPrimitiveToString(object value, out string result);
+		private delegate bool ToNamedType(string typeName, out Type type);
+
+		private static readonly TryKeyPrimitiveToString tryKeyPrimitiveToString;
+		private static readonly Func<object, bool, string> toString;
+		private static readonly ToNamedType toNamedType;
+		private static readonly Func<string, Type, object> changeType;
+
+		static AzureConvert()
+		{
+			const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static;
+
+			Type clientConvert = typeof (DataServiceContext).Assembly.GetTypes().Where(type => type.Name == "ClientConvert").First();
+
+			tryKeyPrimitiveToString = (TryKeyPrimitiveToString) Delegate.CreateDelegate(typeof (TryKeyPrimitiveToString), clientConvert.GetMethod("TryKeyPrimitiveToString", flags));
+			GetEdmType = (Func<Type, string>) Delegate.CreateDelegate(typeof (Func<Type, string>), clientConvert.GetMethod("GetEdmType", flags));
+			toString = (Func<object, bool, string>) Delegate.CreateDelegate(typeof (Func<object, bool, string>), clientConvert.GetMethod("ToString", flags));
+			toNamedType = (ToNamedType) Delegate.CreateDelegate(typeof (ToNamedType), clientConvert.GetMethod("ToNamedType", flags));
+			changeType = (Func<string, Type, object>) Delegate.CreateDelegate(typeof (Func<string, Type, object>), clientConvert.GetMethod("ChangeType", flags));
+		}
 
 		internal static string KeyPrimitiveToString(object value)
 		{
-			object[] args = new[] {value, default(string)};
+			string result;
 
-			bool success = (bool) GetMethod("TryKeyPrimitiveToString").Invoke(null, args);
-
-			if (!success)
+			if (tryKeyPrimitiveToString(value, out result))
+			{
+				return result;
+			}
+			else
+			{
 				throw new InvalidOperationException("Could not convert value to string");
-
-			return (string) args[1];
+			}
 		}
 
-		internal static string GetEdmType(Type type)
-		{
-			return (string) GetMethod("GetEdmType").Invoke(null, new[] {type});
-		}
+		internal static readonly Func<Type, string> GetEdmType;
 
 		internal static string ToString(object value)
 		{
-			return (string) GetMethod("ToString").Invoke(null, new[] {value, false});
+			return toString(value, false);
 		}
 
 		internal static object ParseValue(string edmType, string value)
 		{
-			object[] args = new object[] {edmType, default(Type)};
+			Type type;
 
-			bool success = (bool) GetMethod("ToNamedType").Invoke(null, args);
-
-			if (!success)
+			if (toNamedType(edmType, out type))
+			{
+				return changeType(value, type);
+			}
+			else
+			{
 				throw new InvalidOperationException("Could not parse value from xml");
-
-			return GetMethod("ChangeType").Invoke(null, new[] {value, args[1]});
-		}
-
-		private static MethodInfo GetMethod(string name)
-		{
-			return clientConvert.GetMethod(name, BindingFlags.NonPublic | BindingFlags.Static);
+			}
 		}
 	}
 }
