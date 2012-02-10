@@ -19,9 +19,9 @@ Updating record(s):
 
 Querying:
 
-    dynamic people = db.Query(x => x.People)
-                       .Where(record => record.FirstName != "John")
-                       .Select(record => record.FirstName + " " + record.LastName);
+    IEnumerable<dynamic> people = db.Query(x => x.People)
+                                    .Where(record => record.FirstName != "John")
+                                    .Select(record => record.FirstName + " " + record.LastName);
 
 ### SQL Support
 
